@@ -1,0 +1,1 @@
+java -Dfile.encoding=UTF-8 -cp .:./jar/run_usddi.jar:./lib/* com.adrninistrator.usddi.runner.RunnerGenUmlSequenceDiagram $1
