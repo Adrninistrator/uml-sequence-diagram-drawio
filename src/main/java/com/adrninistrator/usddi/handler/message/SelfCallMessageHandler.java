@@ -7,7 +7,6 @@ import com.adrninistrator.usddi.enums.MessageTypeEnum;
 import com.adrninistrator.usddi.handler.base.BaseMessageHandler;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author adrninistrator
@@ -42,7 +41,6 @@ public class SelfCallMessageHandler extends BaseMessageHandler {
         selfCallMessageInfo.setStartY(usedVariables.getCurrentY());
         selfCallMessageInfo.setPoint1Y(usedVariables.getCurrentY());
 
-        Map<String, Integer> lifelineDisplayedNameMap = usedVariables.getLifelineDisplayedNameMap();
         List<LifelineInfo> lifelineInfoList = usedVariables.getLifelineInfoList();
         LifelineInfo startEndLifelineInfo = lifelineInfoList.get(messageInText.getStartLifelineSeq());
 
@@ -57,10 +55,10 @@ public class SelfCallMessageHandler extends BaseMessageHandler {
         // Activation处理
         handleActivation(messageInText);
 
-        // 处理当前处理到的y坐标，再加上Message请求及返回（自调用）的垂直间距
-        usedVariables.addCurrentY(confPositionInfo.getRspMessageVerticalSpacing());
+        // 处理当前处理到的y坐标，再加上自调用Message的垂直高度
+        usedVariables.addCurrentY(confPositionInfo.getSelfCallVerticalHeight());
 
-        // 终点、点2：y坐标为当前处理到的y坐标加上Message请求及返回（自调用）的垂直间距
+        // 终点、点2：y坐标为当前处理到的y坐标加上自调用Message的垂直高度
         selfCallMessageInfo.setEndY(usedVariables.getCurrentY());
         selfCallMessageInfo.setPoint2Y(usedVariables.getCurrentY());
 

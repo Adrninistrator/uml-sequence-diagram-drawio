@@ -1,6 +1,6 @@
 package com.adrninistrator.usddi.conf;
 
-import com.adrninistrator.usddi.common.Constants;
+import com.adrninistrator.usddi.common.USDDIConstants;
 import com.adrninistrator.usddi.util.CommonUtil;
 
 import java.io.File;
@@ -28,48 +28,53 @@ public class ConfManager {
     }
 
     public boolean handlePositionConf() {
-        String configFilePath = Constants.CONF_DIR + File.separator + Constants.CONF_FILE_POSITION;
+        String configFilePath = USDDIConstants.CONF_DIR + File.separator + USDDIConstants.CONF_FILE_POSITION;
 
         try (Reader reader = new InputStreamReader(new FileInputStream(CommonUtil.findFile(configFilePath)), StandardCharsets.UTF_8)) {
             Properties properties = new Properties();
             properties.load(reader);
 
-            BigDecimal lifelineCenterHorizontalSpacing = getBigDecimalValue(properties, Constants.KEY_LIFELINE_CENTER_HORIZONTAL_SPACING, configFilePath, false);
+            BigDecimal lifelineCenterHorizontalSpacing = getBigDecimalValue(properties, USDDIConstants.KEY_LIFELINE_CENTER_HORIZONTAL_SPACING, configFilePath, false);
             if (lifelineCenterHorizontalSpacing == null) {
                 return false;
             }
 
-            BigDecimal lifelineBoxWidth = getBigDecimalValue(properties, Constants.KEY_LIFELINE_BOX_WIDTH, configFilePath, false);
+            BigDecimal lifelineBoxWidth = getBigDecimalValue(properties, USDDIConstants.KEY_LIFELINE_BOX_WIDTH, configFilePath, false);
             if (lifelineBoxWidth == null) {
                 return false;
             }
 
-            BigDecimal lifelineBoxHeight = getBigDecimalValue(properties, Constants.KEY_LIFELINE_BOX_HEIGHT, configFilePath, false);
+            BigDecimal lifelineBoxHeight = getBigDecimalValue(properties, USDDIConstants.KEY_LIFELINE_BOX_HEIGHT, configFilePath, false);
             if (lifelineBoxHeight == null) {
                 return false;
             }
 
-            BigDecimal messageVerticalSpacing = getBigDecimalValue(properties, Constants.KEY_MESSAGE_VERTICAL_SPACING, configFilePath, false);
+            BigDecimal messageVerticalSpacing = getBigDecimalValue(properties, USDDIConstants.KEY_MESSAGE_VERTICAL_SPACING, configFilePath, false);
             if (messageVerticalSpacing == null) {
                 return false;
             }
 
-            BigDecimal rspMessageVerticalSpacing = getBigDecimalValue(properties, Constants.KEY_RSP_MESSAGE_VERTICAL_SPACING, configFilePath, false);
+            BigDecimal rspMessageVerticalSpacing = getBigDecimalValue(properties, USDDIConstants.KEY_RSP_MESSAGE_VERTICAL_SPACING, configFilePath, false);
             if (rspMessageVerticalSpacing == null) {
                 return false;
             }
 
-            BigDecimal selfCallHorizontalWidth = getBigDecimalValue(properties, Constants.KEY_SELF_CALL_HORIZONTAL_WIDTH, configFilePath, false);
+            BigDecimal selfCallHorizontalWidth = getBigDecimalValue(properties, USDDIConstants.KEY_SELF_CALL_HORIZONTAL_WIDTH, configFilePath, false);
             if (selfCallHorizontalWidth == null) {
                 return false;
             }
 
-            BigDecimal activationWidth = getBigDecimalValue(properties, Constants.KEY_ACTIVATION_WIDTH, configFilePath, false);
+            BigDecimal selfCallVerticalHeight = getBigDecimalValue(properties, USDDIConstants.KEY_SELF_CALL_VERTICAL_HEIGHT, configFilePath, false);
+            if (selfCallVerticalHeight == null) {
+                return false;
+            }
+
+            BigDecimal activationWidth = getBigDecimalValue(properties, USDDIConstants.KEY_ACTIVATION_WIDTH, configFilePath, false);
             if (activationWidth == null) {
                 return false;
             }
 
-            BigDecimal partsExtraVerticalSpacing = getBigDecimalValue(properties, Constants.KEY_PARTS_EXTRA_VERTICAL_SPACING, configFilePath, true);
+            BigDecimal partsExtraVerticalSpacing = getBigDecimalValue(properties, USDDIConstants.KEY_PARTS_EXTRA_VERTICAL_SPACING, configFilePath, true);
 
             ConfPositionInfo confPositionInfo = ConfPositionInfo.getInstance();
             confPositionInfo.setLifelineCenterHorizontalSpacing(lifelineCenterHorizontalSpacing);
@@ -80,6 +85,7 @@ public class ConfManager {
             confPositionInfo.setMessageVerticalSpacingHalf(messageVerticalSpacing.divide(BigDecimal.valueOf(2)));
             confPositionInfo.setRspMessageVerticalSpacing(rspMessageVerticalSpacing);
             confPositionInfo.setSelfCallHorizontalWidth(selfCallHorizontalWidth);
+            confPositionInfo.setSelfCallVerticalHeight(selfCallVerticalHeight);
             confPositionInfo.setActivationWidth(activationWidth);
             confPositionInfo.setActivationWidthHalf(activationWidth.divide(BigDecimal.valueOf(2)));
             confPositionInfo.setPartsExtraVerticalSpacing(partsExtraVerticalSpacing);
@@ -92,26 +98,26 @@ public class ConfManager {
     }
 
     public boolean handleStyleConf() {
-        String configFilePath = Constants.CONF_DIR + File.separator + Constants.CONF_FILE_STYLE;
+        String configFilePath = USDDIConstants.CONF_DIR + File.separator + USDDIConstants.CONF_FILE_STYLE;
 
         try (Reader reader = new InputStreamReader(new FileInputStream(CommonUtil.findFile(configFilePath)), StandardCharsets.UTF_8)) {
             Properties properties = new Properties();
             properties.load(reader);
 
-            BigDecimal lineWidthOfLifeline = getBigDecimalValue(properties, Constants.KEY_LINE_WIDTH_OF_LIFELINE, configFilePath, true);
-            BigDecimal lineWidthOfActivation = getBigDecimalValue(properties, Constants.KEY_LINE_WIDTH_OF_ACTIVATION, configFilePath, true);
-            BigDecimal lineWidthOfMessage = getBigDecimalValue(properties, Constants.KEY_LINE_WIDTH_OF_MESSAGE, configFilePath, true);
-            String lineColorOfLifeline = getColor(properties, Constants.KEY_LINE_COLOR_OF_LIFELINE, configFilePath, true);
-            String lineColorOfActivation = getColor(properties, Constants.KEY_LINE_COLOR_OF_ACTIVATION, configFilePath, true);
-            String lineColorOfMessage = getColor(properties, Constants.KEY_LINE_COLOR_OF_MESSAGE, configFilePath, true);
-            String boxColorOfLifeline = getColor(properties, Constants.KEY_BOX_COLOR_OF_LIFELINE, configFilePath, true);
-            String boxColorOfActivation = getColor(properties, Constants.KEY_BOX_COLOR_OF_ACTIVATION, configFilePath, true);
-            String textFontOfLifeline = getStrValue(properties, Constants.KEY_TEXT_FONT_OF_LIFELINE, configFilePath, true);
-            String textFontOfMessage = getStrValue(properties, Constants.KEY_TEXT_FONT_OF_MESSAGE, configFilePath, true);
-            Integer textSizeOfLifeline = getIntegerValue(properties, Constants.KEY_TEXT_SIZE_OF_LIFELINE, configFilePath, true);
-            Integer textSizeOfMessage = getIntegerValue(properties, Constants.KEY_TEXT_SIZE_OF_MESSAGE, configFilePath, true);
-            String textColorOfLifeline = getColor(properties, Constants.KEY_TEXT_COLOR_OF_LIFELINE, configFilePath, true);
-            String textColorOfMessage = getColor(properties, Constants.KEY_TEXT_COLOR_OF_MESSAGE, configFilePath, true);
+            BigDecimal lineWidthOfLifeline = getBigDecimalValue(properties, USDDIConstants.KEY_LINE_WIDTH_OF_LIFELINE, configFilePath, true);
+            BigDecimal lineWidthOfActivation = getBigDecimalValue(properties, USDDIConstants.KEY_LINE_WIDTH_OF_ACTIVATION, configFilePath, true);
+            BigDecimal lineWidthOfMessage = getBigDecimalValue(properties, USDDIConstants.KEY_LINE_WIDTH_OF_MESSAGE, configFilePath, true);
+            String lineColorOfLifeline = getColor(properties, USDDIConstants.KEY_LINE_COLOR_OF_LIFELINE, configFilePath, true);
+            String lineColorOfActivation = getColor(properties, USDDIConstants.KEY_LINE_COLOR_OF_ACTIVATION, configFilePath, true);
+            String lineColorOfMessage = getColor(properties, USDDIConstants.KEY_LINE_COLOR_OF_MESSAGE, configFilePath, true);
+            String boxColorOfLifeline = getColor(properties, USDDIConstants.KEY_BOX_COLOR_OF_LIFELINE, configFilePath, true);
+            String boxColorOfActivation = getColor(properties, USDDIConstants.KEY_BOX_COLOR_OF_ACTIVATION, configFilePath, true);
+            String textFontOfLifeline = getStrValue(properties, USDDIConstants.KEY_TEXT_FONT_OF_LIFELINE, configFilePath, true);
+            String textFontOfMessage = getStrValue(properties, USDDIConstants.KEY_TEXT_FONT_OF_MESSAGE, configFilePath, true);
+            Integer textSizeOfLifeline = getIntegerValue(properties, USDDIConstants.KEY_TEXT_SIZE_OF_LIFELINE, configFilePath, true);
+            Integer textSizeOfMessage = getIntegerValue(properties, USDDIConstants.KEY_TEXT_SIZE_OF_MESSAGE, configFilePath, true);
+            String textColorOfLifeline = getColor(properties, USDDIConstants.KEY_TEXT_COLOR_OF_LIFELINE, configFilePath, true);
+            String textColorOfMessage = getColor(properties, USDDIConstants.KEY_TEXT_COLOR_OF_MESSAGE, configFilePath, true);
 
             ConfStyleInfo confStyleInfo = ConfStyleInfo.getInstance();
             confStyleInfo.setLineWidthOfLifeline(lineWidthOfLifeline);

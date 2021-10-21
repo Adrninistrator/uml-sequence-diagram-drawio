@@ -1,6 +1,6 @@
 package com.adrninistrator.usddi.handler.message;
 
-import com.adrninistrator.usddi.common.Constants;
+import com.adrninistrator.usddi.common.USDDIConstants;
 import com.adrninistrator.usddi.dto.MessageInStack;
 import com.adrninistrator.usddi.dto.MessageInText;
 import com.adrninistrator.usddi.dto.MessageInfo;
@@ -29,7 +29,7 @@ public class RspMessageHandler extends BaseMessageHandler {
         if (!messageInText.getStartLifelineSeq().equals(messageInStack.getEndLifelineSeq()) ||
                 !messageInText.getEndLifelineSeq().equals(messageInStack.getStartLifelineSeq())) {
             System.err.println("当前返回Message与上一条请求Message不匹配: " + messageInStack.getStartLifelineSeq() +
-                    Constants.MESSAGE_REQ_FLAG + messageInStack.getEndLifelineSeq());
+                    USDDIConstants.MESSAGE_REQ_FLAG + messageInStack.getEndLifelineSeq());
             return false;
         }
 
@@ -39,7 +39,7 @@ public class RspMessageHandler extends BaseMessageHandler {
         if (lastMessageInfo.getStartLifelineSeq().equals(messageInText.getEndLifelineSeq()) &&
                 lastMessageInfo.getEndLifelineSeq().equals(messageInText.getStartLifelineSeq())) {
             // 记录Message的List的最后一个Message，与刚出栈的请求Message是同一个
-            // 处理当前处理到的y坐标加上Message请求及返回（自调用）的垂直间距
+            // 处理当前处理到的y坐标加上Message请求及返回的垂直间距
             usedVariables.addCurrentY(confPositionInfo.getRspMessageVerticalSpacing());
         } else {
             // 记录Message的List的最后一个Message，与刚出栈的请求Message不是同一个

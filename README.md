@@ -1,3 +1,7 @@
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.adrninistrator/uml-sequence-diagram-drawio.svg)](https://search.maven.org/artifact/com.github.adrninistrator/uml-sequence-diagram-drawio/)
+
+[![Apache License 2.0](https://img.shields.io/badge/license-Apache%20License%202.0-green.svg)](https://github.com/Adrninistrator/uml-sequence-diagram-drawio/blob/master/LICENSE)
+
 # 1. 前言
 
 已有一些工具可以根据文本自动生成UML时序图，如PlantUML（[https://plantuml.com/zh/](https://plantuml.com/zh/)）、Mermaid（[https://mermaid-js.github.io/mermaid/](https://mermaid-js.github.io/mermaid/)）等。但存在一些使用不便之处，例如激活需要手工指定、语法较复杂，不便于记忆、部分功能使用频率较低、不便于人工继续编辑、展示的样式与常见的UML时序图不同等。
@@ -36,7 +40,9 @@ xm<=妈妈:<u>老师说要等一会</u>
 妈妈->xm:老师同意你请假了
 ```
 
-# 3. 使用说明
+# 3. 根据文本文件生成UML时序图
+
+本工具代码地址为： [https://github.com/Adrninistrator/uml-sequence-diagram-drawio/](https://github.com/Adrninistrator/uml-sequence-diagram-drawio/) 。
 
 ## 3.1. 使用方式
 
@@ -69,7 +75,7 @@ sh run.sh [文本文件路径]
 - Gradle
 
 ```
-testImplementation 'com.github.adrninistrator:uml-sequence-diagram-drawio:0.0.1'
+testImplementation 'com.github.adrninistrator:uml-sequence-diagram-drawio:0.0.2'
 ```
 
 - Maven
@@ -78,7 +84,7 @@ testImplementation 'com.github.adrninistrator:uml-sequence-diagram-drawio:0.0.1'
 <dependency>
   <groupId>com.github.adrninistrator</groupId>
   <artifactId>uml-sequence-diagram-drawio</artifactId>
-  <version>0.0.1</version>
+  <version>0.0.2</version>
   <type>provided</type>
 </dependency>
 ```
@@ -193,6 +199,7 @@ as
 |message.vertical.spacing|消息（及与生命线之间）垂直间距|非空|无|
 |rsp.message.vertical.spacing|消息请求及返回（自调用）的垂直间距|非空|无|
 |self.call.horizontal.width|自调用消息的水平宽度|非空|无|
+|self.call.vertical.height|自调用消息的垂直高度|非空|无|
 |activation.width|激活的宽度|非空|无|
 |parts.extra.vertical.spacing|两个阶段之间的额外垂直间距|可选|0|
 
@@ -309,9 +316,55 @@ as
 <br>
 ```
 
-## 3.5. 生成的.drawio文件使用方式
+# 4. 通过Java方法生成UML时序图
 
-### 3.5.1. 直接打开.drawio文件
+调用上述Java组件提供的RunnerGenTextFile4USD类，可以生成用于生成UML时序图的文本文件，再根据文本文件生成UML时序图，该类提供的方法说明如下：
+
+|方法名|功能|
+|---|---|
+|init|初始化|
+|writeComment|添加注释|
+|addReqMessage|添加同步请求消息|
+|addRspMessage|添加返回消息|
+|addSelfCallMessage|添加自调用消息|
+|addAsyncMessage|添加异步请求消息|
+|write2File|将添加的数据写入文件|
+
+在使用RunnerGenTextFile4USD类时，需要先调用init方法，指定需要生成的文本文件路径，之后根据需要添加注释或消息，最后调用write2File方法将添加的数据写入文件。
+
+RunnerGenTextFile4USD类的使用示例如下所示，可参考test.usddi.gen_text_file.TestGenTextFile4USD类。
+
+```java
+String filePath = "test-" + System.currentTimeMillis() + ".txt";
+System.out.println(filePath);
+
+RunnerGenTextFile4USD runnerGenTextFile4USD = new RunnerGenTextFile4USD();
+
+try (BufferedWriter writer = runnerGenTextFile4USD.init(filePath)) {
+    // 添加注释
+    runnerGenTextFile4USD.writeComment("111");
+    runnerGenTextFile4USD.writeComment("222");
+    runnerGenTextFile4USD.writeComment("333");
+
+    // 添加不同类型的消息
+    runnerGenTextFile4USD.addReqMessage("a", "b", "请求1");
+    runnerGenTextFile4USD.addRspMessage("a", "b", "返回1");
+    runnerGenTextFile4USD.addSelfCallMessage("a", "自调用1<br>aaa");
+    runnerGenTextFile4USD.addAsyncMessage("a", "c", "异步请求1<br>bbb");
+
+    // 将添加的数据写入文件
+    runnerGenTextFile4USD.write2File();
+
+    // 根据文本生成UML时序图文件
+    new RunnerGenUmlSequenceDiagram().generate(filePath, filePath + USDDIConstants.EXT_DRAWIO);
+} catch (Exception e) {
+    e.printStackTrace();
+}
+```
+
+# 5. 生成的.drawio文件使用方式
+
+## 5.1. 直接打开.drawio文件
 
 从以下地址可以下载draw.io桌面版软件：
 
@@ -319,6 +372,6 @@ as
 
 本工具生成的.drawio文件可使用draw.io软件打开并编辑。
 
-### 3.5.2. 复制.drawio文件的XML内容
+## 5.2. 复制.drawio文件的XML内容
 
 复制本工具生成的.drawio文件的XML内容，在draw.io桌面版或网页版中，打开“其他->编辑绘图”，或“Extras->Edit Diagram”菜单，可以粘贴到当前打开的draw.io文件中。

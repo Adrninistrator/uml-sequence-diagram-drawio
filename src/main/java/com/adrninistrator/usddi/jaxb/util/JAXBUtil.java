@@ -3,9 +3,7 @@ package com.adrninistrator.usddi.jaxb.util;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import java.net.URLEncoder;
 
 /**
  * @author adrninistrator

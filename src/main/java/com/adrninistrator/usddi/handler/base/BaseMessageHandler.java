@@ -1,6 +1,6 @@
 package com.adrninistrator.usddi.handler.base;
 
-import com.adrninistrator.usddi.common.Constants;
+import com.adrninistrator.usddi.common.USDDIConstants;
 import com.adrninistrator.usddi.dto.*;
 import com.adrninistrator.usddi.enums.MessageTypeEnum;
 
@@ -16,7 +16,7 @@ import java.util.Map;
 public abstract class BaseMessageHandler extends BaseHandler {
 
     public static final String[] FLAG_ARRAY = new String[]{
-            Constants.MESSAGE_REQ_FLAG, Constants.MESSAGE_RSP_FLAG, Constants.MESSAGE_ASYNC_FLAG};
+            USDDIConstants.MESSAGE_REQ_FLAG, USDDIConstants.MESSAGE_RSP_FLAG, USDDIConstants.MESSAGE_ASYNC_FLAG};
 
     // 获得Message中的标志
     private static MessageFlagIndex getFlagInMessage(String text) {
@@ -76,13 +76,13 @@ public abstract class BaseMessageHandler extends BaseHandler {
             }
         }
 
-        int messageTextIndex = text.indexOf(Constants.MESSAGE_TEXT_FLAG);
+        int messageTextIndex = text.indexOf(USDDIConstants.MESSAGE_TEXT_FLAG);
         if (messageTextIndex == -1) {
             System.err.println("当前Message未指定文字");
             return null;
         }
 
-        String messageText = text.substring(messageTextIndex + Constants.MESSAGE_TEXT_FLAG.length()).trim();
+        String messageText = text.substring(messageTextIndex + USDDIConstants.MESSAGE_TEXT_FLAG.length()).trim();
         if (messageText.isEmpty()) {
             System.err.println("当前Message文字为空");
             return null;
@@ -103,7 +103,7 @@ public abstract class BaseMessageHandler extends BaseHandler {
         }
 
         MessageInText messageInText = new MessageInText();
-        if (Constants.MESSAGE_RSP_FLAG.equals(messageFlagIndex.getFlag())) {
+        if (USDDIConstants.MESSAGE_RSP_FLAG.equals(messageFlagIndex.getFlag())) {
             // 对于返回Message，左边是终点，右边是起点
             messageInText.setStartLifelineSeq(endLifelineSeq);
             messageInText.setEndLifelineSeq(startLifelineSeq);
@@ -112,11 +112,11 @@ public abstract class BaseMessageHandler extends BaseHandler {
             messageInText.setEndLifelineSeq(endLifelineSeq);
         }
         messageInText.setMessageText(messageText);
-        if (Constants.MESSAGE_REQ_FLAG.equals(messageFlagIndex.getFlag())) {
+        if (USDDIConstants.MESSAGE_REQ_FLAG.equals(messageFlagIndex.getFlag())) {
             messageInText.setMessageType(startLifelineSeq.equals(endLifelineSeq) ? MessageTypeEnum.MTE_SELF : MessageTypeEnum.MTE_REQ);
-        } else if (Constants.MESSAGE_RSP_FLAG.equals(messageFlagIndex.getFlag())) {
+        } else if (USDDIConstants.MESSAGE_RSP_FLAG.equals(messageFlagIndex.getFlag())) {
             messageInText.setMessageType(MessageTypeEnum.MTE_RSP);
-        } else if (Constants.MESSAGE_ASYNC_FLAG.equals(messageFlagIndex.getFlag())) {
+        } else if (USDDIConstants.MESSAGE_ASYNC_FLAG.equals(messageFlagIndex.getFlag())) {
             messageInText.setMessageType(MessageTypeEnum.MTE_ASYNC);
         }
 
@@ -138,7 +138,7 @@ public abstract class BaseMessageHandler extends BaseHandler {
             MessageInStack topMessage = messageStack.peek();
             if (!messageInText.getStartLifelineSeq().equals(topMessage.getEndLifelineSeq())) {
                 System.err.println("当前请求的起点与上次请求的终点不同: " + messageInText.getStartLifelineSeq() +
-                        Constants.MESSAGE_REQ_FLAG + topMessage.getEndLifelineSeq());
+                        USDDIConstants.MESSAGE_REQ_FLAG + topMessage.getEndLifelineSeq());
                 return false;
             }
         }

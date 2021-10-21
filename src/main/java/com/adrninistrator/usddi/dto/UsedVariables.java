@@ -37,7 +37,11 @@ public class UsedVariables {
     // 最初的起点Lifeline序号
     private Integer firstStartLifelineSeq;
 
-    private static UsedVariables instance = new UsedVariables();
+    private static UsedVariables instance;
+
+    public static void reset() {
+        instance = new UsedVariables();
+    }
 
     public static UsedVariables getInstance() {
         return instance;

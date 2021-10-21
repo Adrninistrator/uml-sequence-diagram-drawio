@@ -1,6 +1,6 @@
 package com.adrninistrator.usddi.handler;
 
-import com.adrninistrator.usddi.common.Constants;
+import com.adrninistrator.usddi.common.USDDIConstants;
 import com.adrninistrator.usddi.dto.LifelineInfo;
 import com.adrninistrator.usddi.dto.LifelineName;
 import com.adrninistrator.usddi.handler.base.BaseHandler;
@@ -67,14 +67,14 @@ public class LifelineHandler extends BaseHandler {
 
     // 获得Lifeline的name及alias
     private LifelineName getLifelineName(String text) {
-        String lifelineText = text.substring(Constants.LIFELINE_TITLE_FLAG.length());
+        String lifelineText = text.substring(USDDIConstants.LIFELINE_TITLE_FLAG.length());
         if (lifelineText.isEmpty()) {
             System.err.println("指定的Lifeline name为空");
             return null;
         }
 
         LifelineName lifelineName = new LifelineName();
-        int aliasFlagIndex = lifelineText.indexOf(Constants.LIFELINE_ALIAS_FLAG);
+        int aliasFlagIndex = lifelineText.indexOf(USDDIConstants.LIFELINE_ALIAS_FLAG);
         if (aliasFlagIndex == -1) {
             // 当前Lifeline的name未指定alias
             lifelineName.setDisplayedName(lifelineText);
@@ -89,7 +89,7 @@ public class LifelineHandler extends BaseHandler {
             return null;
         }
 
-        String alias = lifelineText.substring(aliasFlagIndex + Constants.LIFELINE_ALIAS_FLAG.length()).trim();
+        String alias = lifelineText.substring(aliasFlagIndex + USDDIConstants.LIFELINE_ALIAS_FLAG.length()).trim();
         if (alias.isEmpty()) {
             System.err.println("指定的Lifeline的name别名为空");
             return null;

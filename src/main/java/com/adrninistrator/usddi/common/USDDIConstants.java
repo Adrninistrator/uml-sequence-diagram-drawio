@@ -5,7 +5,7 @@ package com.adrninistrator.usddi.common;
  * @date 2021/9/15
  * @description:
  */
-public class Constants {
+public class USDDIConstants {
 
     public static final String COMMENT_FLAG = "#";
 
@@ -27,6 +27,12 @@ public class Constants {
 
     public static final String CONF_FILE_STYLE = "style.properties";
 
+    public static final String NEW_LINE = "\n";
+
+    public static final String EXT_DRAWIO = ".drawio";
+
+    public static final String HTML_NEW_LINE = "<br>";
+
     // Lifeline中间点的水平间距
     public static final String KEY_LIFELINE_CENTER_HORIZONTAL_SPACING = "lifeline.center.horizontal.spacing";
     // Lifeline的方框宽度
@@ -35,10 +41,12 @@ public class Constants {
     public static final String KEY_LIFELINE_BOX_HEIGHT = "lifeline.box.height";
     // Message（及与Lifeline之间）垂直间距
     public static final String KEY_MESSAGE_VERTICAL_SPACING = "message.vertical.spacing";
-    // Message请求及返回（自调用）的垂直间距
+    // Message请求及返回的垂直间距
     public static final String KEY_RSP_MESSAGE_VERTICAL_SPACING = "rsp.message.vertical.spacing";
     // 自调用Message的水平宽度
     public static final String KEY_SELF_CALL_HORIZONTAL_WIDTH = "self.call.horizontal.width";
+    // 自调用消息的垂直高度
+    public static final String KEY_SELF_CALL_VERTICAL_HEIGHT = "self.call.vertical.height";
     // Activation的宽度
     public static final String KEY_ACTIVATION_WIDTH = "activation.width";
     // 两个部分之间的额外垂直间距
@@ -73,7 +81,7 @@ public class Constants {
     //	文字颜色-Message
     public static final String KEY_TEXT_COLOR_OF_MESSAGE = "text.color.of.message";
 
-    private Constants() {
+    private USDDIConstants() {
         throw new IllegalStateException("illegal");
     }
 }

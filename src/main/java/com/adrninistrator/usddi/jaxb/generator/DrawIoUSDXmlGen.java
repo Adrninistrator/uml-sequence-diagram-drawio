@@ -43,6 +43,16 @@ public class DrawIoUSDXmlGen {
      * @param xmlFilePath
      */
     public boolean generate(String xmlFilePath) {
+        if (lifelineInfoList.isEmpty()) {
+            System.err.println("未指定生命线");
+            return false;
+        }
+
+        if (messageInfoList.isEmpty()) {
+            System.err.println("未指定消息");
+            return false;
+        }
+
         mxCellHead = "mxCell-" + System.currentTimeMillis() + "-";
 
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(xmlFilePath),

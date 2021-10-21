@@ -1,6 +1,6 @@
 package com.adrninistrator.usddi.runner;
 
-import com.adrninistrator.usddi.common.Constants;
+import com.adrninistrator.usddi.common.USDDIConstants;
 import com.adrninistrator.usddi.conf.ConfManager;
 import com.adrninistrator.usddi.conf.ConfPositionInfo;
 import com.adrninistrator.usddi.dto.MessageInText;
@@ -30,25 +30,25 @@ import java.nio.charset.StandardCharsets;
  */
 public class RunnerGenUmlSequenceDiagram {
 
-    // 记录是否已处理完毕前面的lifeline的name
-    private boolean handleLifelineNameDone = false;
-
-    private AsyncMessageHandler asyncMessageHandler = new AsyncMessageHandler();
-    private ReqMessageHandler reqMessageHandler = new ReqMessageHandler();
-    private RspMessageHandler rspMessageHandler = new RspMessageHandler();
-    private SelfCallMessageHandler selfCallMessageHandler = new SelfCallMessageHandler();
-
-    private LifelineHandler lifelineHandler = new LifelineHandler();
-    private EndAllHandler endAllHandler = new EndAllHandler();
-    private EndPartHandler endPartHandler = new EndPartHandler();
-
-    private UsedVariables usedVariables = UsedVariables.getInstance();
-
     private ConfManager confManager = ConfManager.getInstance();
 
     private ConfPositionInfo confPositionInfo = ConfPositionInfo.getInstance();
 
-    private DrawIoUSDXmlGen drawIoUSDXmlGen = new DrawIoUSDXmlGen();
+    private UsedVariables usedVariables = null;
+
+    private AsyncMessageHandler asyncMessageHandler = null;
+    private ReqMessageHandler reqMessageHandler = null;
+    private RspMessageHandler rspMessageHandler = null;
+    private SelfCallMessageHandler selfCallMessageHandler = null;
+
+    private LifelineHandler lifelineHandler = null;
+    private EndAllHandler endAllHandler = null;
+    private EndPartHandler endPartHandler = null;
+
+    private DrawIoUSDXmlGen drawIoUSDXmlGen = null;
+
+    // 记录是否已处理完毕前面的lifeline的name
+    private boolean handleLifelineNameDone = false;
 
     public static void main(String[] args) {
         int argNum = 0;
@@ -62,8 +62,26 @@ public class RunnerGenUmlSequenceDiagram {
 
         RunnerGenUmlSequenceDiagram runner = new RunnerGenUmlSequenceDiagram();
         String txtFilePath = args[0];
-        String outputFilePath = txtFilePath + "-" + CommonUtil.currentTime() + ".drawio";
+        String outputFilePath = txtFilePath + "-" + CommonUtil.currentTime() + USDDIConstants.EXT_DRAWIO;
         runner.generate(txtFilePath, outputFilePath);
+    }
+
+    // 初始化
+    private void init() {
+        UsedVariables.reset();
+
+        usedVariables = UsedVariables.getInstance();
+
+        asyncMessageHandler = new AsyncMessageHandler();
+        reqMessageHandler = new ReqMessageHandler();
+        rspMessageHandler = new RspMessageHandler();
+        selfCallMessageHandler = new SelfCallMessageHandler();
+
+        lifelineHandler = new LifelineHandler();
+        endAllHandler = new EndAllHandler();
+        endPartHandler = new EndPartHandler();
+
+        drawIoUSDXmlGen = new DrawIoUSDXmlGen();
     }
 
     /**
@@ -74,6 +92,9 @@ public class RunnerGenUmlSequenceDiagram {
      * @return
      */
     public boolean generate(String txtFilePath, String outputFilePath) {
+        // 初始化
+        init();
+
         if (!confManager.handlePositionConf() || !confManager.handleStyleConf()) {
             return false;
         }
@@ -95,7 +116,7 @@ public class RunnerGenUmlSequenceDiagram {
             String line;
             while ((line = br.readLine()) != null) {
                 lineNum++;
-                if (line.startsWith(Constants.COMMENT_FLAG)) {
+                if (line.startsWith(USDDIConstants.COMMENT_FLAG)) {
                     continue;
                 }
 
@@ -112,7 +133,7 @@ public class RunnerGenUmlSequenceDiagram {
                 // 标记上一行非空行
                 lastLineIsEmpty = false;
 
-                if (line.startsWith(Constants.LIFELINE_TITLE_FLAG)) {
+                if (line.startsWith(USDDIConstants.LIFELINE_TITLE_FLAG)) {
                     // 当前行为lifeline的name
                     if (handleLifelineNameDone) {
                         System.err.println("lifeline的name已处理完毕，第" + lineNum + "行还是lifeline的name: " + line);
@@ -142,9 +163,12 @@ public class RunnerGenUmlSequenceDiagram {
             endAllHandler.handle();
 
             // 生成drawio的XML文件
-            drawIoUSDXmlGen.generate(outputFilePath);
+            if (!drawIoUSDXmlGen.generate(outputFilePath)) {
+                return false;
+            }
 
-            System.out.println("处理完毕");
+            System.out.println("生成UML时序图处理完毕 " + outputFilePath);
+
             return true;
         } catch (Exception e) {
             e.printStackTrace();

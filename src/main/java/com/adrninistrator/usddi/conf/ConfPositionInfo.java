@@ -27,11 +27,14 @@ public class ConfPositionInfo {
     // Message（及与Lifeline之间）垂直间距的一半
     private BigDecimal messageVerticalSpacingHalf;
 
-    // Message请求及返回（自调用）的垂直间距
+    // Message请求及返回的垂直间距
     private BigDecimal rspMessageVerticalSpacing;
 
     // 自调用Message的水平宽度
     private BigDecimal selfCallHorizontalWidth;
+
+    // 自调用消息的垂直高度
+    private BigDecimal selfCallVerticalHeight;
 
     // Activation的宽度
     private BigDecimal activationWidth;
@@ -113,6 +116,14 @@ public class ConfPositionInfo {
         this.selfCallHorizontalWidth = selfCallHorizontalWidth;
     }
 
+    public BigDecimal getSelfCallVerticalHeight() {
+        return selfCallVerticalHeight;
+    }
+
+    public void setSelfCallVerticalHeight(BigDecimal selfCallVerticalHeight) {
+        this.selfCallVerticalHeight = selfCallVerticalHeight;
+    }
+
     public BigDecimal getActivationWidth() {
         return activationWidth;
     }
@@ -135,5 +146,9 @@ public class ConfPositionInfo {
 
     public void setPartsExtraVerticalSpacing(BigDecimal partsExtraVerticalSpacing) {
         this.partsExtraVerticalSpacing = partsExtraVerticalSpacing;
+    }
+
+    public static void setInstance(ConfPositionInfo instance) {
+        ConfPositionInfo.instance = instance;
     }
 }
