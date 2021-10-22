@@ -10,6 +10,8 @@
 
 本工具生成的UML时序图相关的术语及样式参考了[https://www.uml-diagrams.org/sequence-diagrams.html](https://www.uml-diagrams.org/sequence-diagrams.html)，支持的元素包括：生命线（Lifeline）、激活（Execution/Activation）、消息（Message）。
 
+`当前项目可用于为Java代码自动生成UML时序图`，可参考[https://github.com/Adrninistrator/gen-java-code-uml-sequence-diagram](https://github.com/Adrninistrator/gen-java-code-uml-sequence-diagram)。
+
 # 2. 示例
 
 以下为本工具生成的draw.io格式的UML时序图：
