@@ -52,7 +52,10 @@ public class LifelineHandler extends BaseHandler {
         // 中间点x坐标 = Lifeline方框宽度的1/2 + (当前Lifeline序号-1) * Lifeline中间点的水平间距
         lifelineInfo.setCenterX(confPositionInfo.getLifelineBoxWidthHalf().add(
                 confPositionInfo.getLifelineCenterHorizontalSpacing().multiply(BigDecimal.valueOf(currentLifelineSeq))));
+        // Lifeline的起始y坐标
+        lifelineInfo.setStartY(usedVariables.getLifelineStartY());
         lifelineInfoList.add(lifelineInfo);
+
 
         // 记录Lifeline用于展示的name及在List中的序号
         lifelineDisplayedNameMap.put(displayedName, currentLifelineSeq);

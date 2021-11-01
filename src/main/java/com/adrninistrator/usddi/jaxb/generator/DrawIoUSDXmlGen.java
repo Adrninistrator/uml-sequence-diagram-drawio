@@ -1,5 +1,6 @@
 package com.adrninistrator.usddi.jaxb.generator;
 
+import com.adrninistrator.usddi.common.USDDIConstants;
 import com.adrninistrator.usddi.conf.ConfPositionInfo;
 import com.adrninistrator.usddi.conf.ConfStyleInfo;
 import com.adrninistrator.usddi.dto.*;
@@ -25,17 +26,23 @@ public class DrawIoUSDXmlGen {
     public static final String MX_AS_TARGET_POINT = "targetPoint";
     public static final String MX_AS_POINTS = "points";
 
+    private static final String ID_DESCRIPTION = "description-";
+    private static final String ID_LIFELINE = "lifeline-";
+    private static final String ID_ACTIVATION = "activation-";
+    private static final String ID_MESSAGE = "message-";
+
     private UsedVariables usedVariables = UsedVariables.getInstance();
     private ConfPositionInfo confPositionInfo = ConfPositionInfo.getInstance();
     private ConfStyleInfo confStyleInfo = ConfStyleInfo.getInstance();
 
+    private DescriptionInfo descriptionInfo = usedVariables.getDescriptionInfo();
     private List<LifelineInfo> lifelineInfoList = usedVariables.getLifelineInfoList();
     private Map<Integer, List<ActivationInfo>> activationMap = usedVariables.getActivationMap();
     private List<MessageInfo> messageInfoList = usedVariables.getMessageInfoList();
 
-    private String mxCellHead;
+    private String timestamp;
 
-    private int mxCellId = 0;
+    private int elementId = 0;
 
     /**
      * 生成drawio的UML时序图XML文件
@@ -53,13 +60,17 @@ public class DrawIoUSDXmlGen {
             return false;
         }
 
-        mxCellHead = "mxCell-" + System.currentTimeMillis() + "-";
+        timestamp = String.valueOf(System.currentTimeMillis());
 
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(xmlFilePath),
                 StandardCharsets.UTF_8))) {
             // 生成基本数据
             MxGraphModel mxGraphModel = genBaseData();
             List<MxCell> mxCellList = mxGraphModel.getRoot().getMxCellList();
+            List<UserObject> userObjectList = mxGraphModel.getRoot().getUserObjectList();
+
+            // 处理描述
+            handleDescription(userObjectList);
 
             // 处理Lifeline
             handleLifeline(mxCellList);
@@ -68,11 +79,11 @@ public class DrawIoUSDXmlGen {
             handleActivation(mxCellList);
 
             // 处理Message
-            handleMessage(mxCellList);
+            handleMessage(userObjectList);
 
             // 生成XML文件
             JAXBUtil.javaBeanToXml(mxGraphModel, writer,
-                    MxArray.class, MxCell.class, MxGeometry.class, MxGraphModel.class, MxPoint.class, MxRoot.class);
+                    MxArray.class, MxCell.class, MxGeometry.class, MxGraphModel.class, MxPoint.class, MxRoot.class, UserObject.class);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -102,14 +113,13 @@ public class DrawIoUSDXmlGen {
         MxRoot root = new MxRoot();
         mxGraphModel.setRoot(root);
 
-        // mxCell数量，等于Lifeline + Activation + Message总数量 + 2
+        // mxCell数量，等于Lifeline + Activation + 2
         int cellNum = lifelineInfoList.size();
 
         Collection<List<ActivationInfo>> activationInfoLists = activationMap.values();
         for (List<ActivationInfo> activationInfoList : activationInfoLists) {
             cellNum += activationInfoList.size();
         }
-        cellNum += messageInfoList.size();
         cellNum += 2;
 
         List<MxCell> mxCellList = new ArrayList<>(cellNum);
@@ -125,14 +135,52 @@ public class DrawIoUSDXmlGen {
         mxCellList.add(mxCell0);
         mxCellList.add(mxCell1);
 
+        // UserObject数量，等于Message总数量
+        List<UserObject> userObjectList = new ArrayList<>(messageInfoList.size());
+        root.setUserObjectList(userObjectList);
+
         return mxGraphModel;
+    }
+
+    // 处理描述
+    private void handleDescription(List<UserObject> userObjectList) {
+        if (!descriptionInfo.isUsed()) {
+            return;
+        }
+
+        UserObject userObject = new UserObject();
+        MxCell descriptionMxCell = new MxCell();
+        userObject.setId(genElementId(ID_DESCRIPTION));
+
+        userObject.setLabel(descriptionInfo.getDescription());
+        if (descriptionInfo.getLink() != null) {
+            userObject.setLink(descriptionInfo.getLink());
+        }
+
+        userObject.setMxCell(descriptionMxCell);
+        descriptionMxCell.setVertex("1");
+        descriptionMxCell.setParent("1");
+
+        // 处理描述的样式
+        String style = getDescriptionStyle();
+        descriptionMxCell.setStyle(style);
+
+        MxGeometry descriptionMxGeometry = new MxGeometry();
+        descriptionMxCell.setMxGeometry(descriptionMxGeometry);
+        descriptionMxGeometry.setAs(MX_AS_GEOMETRY);
+        descriptionMxGeometry.setX("0");
+        descriptionMxGeometry.setY("0");
+        descriptionMxGeometry.setWidth(usedVariables.getTotalWidth().toPlainString());
+        descriptionMxGeometry.setHeight(USDDIConstants.DESCRIPTION_HEIGHT.toPlainString());
+
+        userObjectList.add(userObject);
     }
 
     // 处理Lifeline
     private void handleLifeline(List<MxCell> mxCellList) {
         for (LifelineInfo lifelineInfo : lifelineInfoList) {
             MxCell lifelineMxCell = new MxCell();
-            lifelineMxCell.setId(genMxId());
+            lifelineMxCell.setId(genElementId(ID_LIFELINE));
             // 处理文字及字体
             String text = handleTextWithFont(lifelineInfo.getDisplayedName(),
                     confStyleInfo.getTextFontOfLifeline(), confStyleInfo.getTextSizeOfLifeline(), confStyleInfo.getTextColorOfLifeline());
@@ -147,9 +195,9 @@ public class DrawIoUSDXmlGen {
             MxGeometry lifelineMxGeometry = new MxGeometry();
             lifelineMxCell.setMxGeometry(lifelineMxGeometry);
             lifelineMxGeometry.setX(lifelineInfo.getCenterX().subtract(confPositionInfo.getLifelineBoxWidthHalf()).toPlainString());
-            lifelineMxGeometry.setY("0");
+            lifelineMxGeometry.setY(lifelineInfo.getStartY().toPlainString());
             lifelineMxGeometry.setWidth(confPositionInfo.getLifelineBoxWidth().toPlainString());
-            lifelineMxGeometry.setHeight(usedVariables.getTotalHeight().toPlainString());
+            lifelineMxGeometry.setHeight(usedVariables.getLifelineHeight().toPlainString());
             lifelineMxGeometry.setAs(MX_AS_GEOMETRY);
 
             mxCellList.add(lifelineMxCell);
@@ -169,7 +217,7 @@ public class DrawIoUSDXmlGen {
 
             for (ActivationInfo activationInfo : activationInfoList) {
                 MxCell activationMxCell = new MxCell();
-                activationMxCell.setId(genMxId());
+                activationMxCell.setId(genElementId(ID_ACTIVATION));
                 activationMxCell.setValue("");
 
                 // 处理Activation样式
@@ -192,14 +240,20 @@ public class DrawIoUSDXmlGen {
     }
 
     // 处理Message
-    private void handleMessage(List<MxCell> mxCellList) {
+    private void handleMessage(List<UserObject> userObjectList) {
         for (MessageInfo messageInfo : messageInfoList) {
+            UserObject userObject = new UserObject();
             MxCell messageMxCell = new MxCell();
-            messageMxCell.setId(genMxId());
+            userObject.setId(genElementId(ID_MESSAGE));
             // 处理文字及字体
             String text = handleTextWithFont(messageInfo.getMessageText(),
                     confStyleInfo.getTextFontOfMessage(), confStyleInfo.getTextSizeOfMessage(), confStyleInfo.getTextColorOfMessage());
-            messageMxCell.setValue(text);
+            userObject.setLabel(text);
+            if (messageInfo.getLink() != null) {
+                userObject.setLink(messageInfo.getLink());
+            }
+            userObject.setMxCell(messageMxCell);
+
             messageMxCell.setParent("1");
             messageMxCell.setEdge("1");
 
@@ -264,12 +318,27 @@ public class DrawIoUSDXmlGen {
             }
             messageMxCell.setStyle(style);
 
-            mxCellList.add(messageMxCell);
+            userObjectList.add(userObject);
         }
     }
 
-    private String genMxId() {
-        return mxCellHead + (++mxCellId);
+    private String genElementId(String prefix) {
+        return prefix + timestamp + "-" + (++elementId);
+    }
+
+    // 处理描述样式
+    private String getDescriptionStyle() {
+        Map<String, String> map = new HashMap<>();
+        map.put("html", "1");
+        map.put("strokeColor", "none");
+        map.put("fillColor", "none");
+        map.put("align", "left");
+        map.put("verticalAlign", "bottom");
+        map.put("whiteSpace", "wrap");
+        map.put("rounded", "0");
+        map.put("labelPosition", "center");
+        map.put("verticalLabelPosition", "top");
+        return "text;" + getStyleStringFromMap(map);
     }
 
     // 处理Lifeline样式

@@ -15,6 +15,9 @@ public class LifelineInfo {
     // Lifeline中间点x坐标
     private BigDecimal centerX;
 
+    // Lifeline起点y坐标
+    private BigDecimal startY;
+
     public String getDisplayedName() {
         return displayedName;
     }
@@ -29,5 +32,13 @@ public class LifelineInfo {
 
     public void setCenterX(BigDecimal centerX) {
         this.centerX = centerX;
+    }
+
+    public BigDecimal getStartY() {
+        return startY;
+    }
+
+    public void setStartY(BigDecimal startY) {
+        this.startY = startY;
     }
 }

@@ -35,11 +35,15 @@ public class MessageInfo {
     // 终点Lifeline的序号
     private Integer endLifelineSeq;
 
+    // 链接
+    private String link;
+
     public static MessageInfo genFromMessageInText(MessageInText messageInText) {
         MessageInfo messageInfo = new MessageInfo();
         messageInfo.setMessageText(messageInText.getMessageText());
         messageInfo.setStartLifelineSeq(messageInText.getStartLifelineSeq());
         messageInfo.setEndLifelineSeq(messageInText.getEndLifelineSeq());
+        messageInfo.setLink(messageInText.getLink());
         return messageInfo;
     }
     //
@@ -106,5 +110,13 @@ public class MessageInfo {
 
     public void setEndLifelineSeq(Integer endLifelineSeq) {
         this.endLifelineSeq = endLifelineSeq;
+    }
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
     }
 }

@@ -3,6 +3,7 @@ package com.adrninistrator.usddi.runner;
 import com.adrninistrator.usddi.common.USDDIConstants;
 import com.adrninistrator.usddi.dto.LifelineName;
 import com.adrninistrator.usddi.enums.MessageTypeEnum;
+import com.adrninistrator.usddi.util.CommonUtil;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -35,6 +36,8 @@ public class RunnerGenTextFile4USD {
 
     private int lifelineSeq = 0;
 
+    private boolean writeDescriptionDone = false;
+
     /**
      * 初始化
      *
@@ -54,6 +57,33 @@ public class RunnerGenTextFile4USD {
         writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath), StandardCharsets.UTF_8));
         inited = true;
         return writer;
+    }
+
+    /**
+     * 设置描述
+     *
+     * @param description 描述内容
+     * @param link        链接
+     */
+    public void writeDescription(String description, String link) throws IOException {
+        checkStage();
+
+        if (writeDescriptionDone) {
+            throw new RuntimeException("只能指定一条描述");
+        }
+        writeDescriptionDone = true;
+
+        if (CommonUtil.isStrEmpty(description)) {
+            throw new RuntimeException("描述为空");
+        }
+
+        writer.write(USDDIConstants.DESCRIPTION_FLAG);
+        writer.write(description);
+        if (!CommonUtil.isStrEmpty(link)) {
+            writer.write(USDDIConstants.LINK_FLAG);
+            writer.write(link);
+        }
+        writer.write(USDDIConstants.NEW_LINE);
     }
 
     /**
@@ -77,9 +107,10 @@ public class RunnerGenTextFile4USD {
      * @param startLifeline 起点生命线
      * @param endLifeline   终点生命线
      * @param message       消息内容
+     * @param link          链接
      */
-    public void addReqMessage(String startLifeline, String endLifeline, String message) {
-        addMessage(startLifeline, endLifeline, message, MessageTypeEnum.MTE_REQ);
+    public void addReqMessage(String startLifeline, String endLifeline, String message, String link) {
+        addMessage(MessageTypeEnum.MTE_REQ, startLifeline, endLifeline, message, link);
     }
 
     /**
@@ -88,9 +119,10 @@ public class RunnerGenTextFile4USD {
      * @param endLifeline   终点生命线
      * @param startLifeline 起点生命线
      * @param message       消息内容
+     * @param link          链接
      */
-    public void addRspMessage(String endLifeline, String startLifeline, String message) {
-        addMessage(endLifeline, startLifeline, message, MessageTypeEnum.MTE_RSP);
+    public void addRspMessage(String endLifeline, String startLifeline, String message, String link) {
+        addMessage(MessageTypeEnum.MTE_RSP, endLifeline, startLifeline, message, link);
     }
 
     /**
@@ -98,9 +130,10 @@ public class RunnerGenTextFile4USD {
      *
      * @param lifeline 生命线
      * @param message  消息内容
+     * @param link     链接
      */
-    public void addSelfCallMessage(String lifeline, String message) {
-        addMessage(lifeline, lifeline, message, MessageTypeEnum.MTE_SELF);
+    public void addSelfCallMessage(String lifeline, String message, String link) {
+        addMessage(MessageTypeEnum.MTE_SELF, lifeline, lifeline, message, link);
     }
 
     /**
@@ -109,9 +142,10 @@ public class RunnerGenTextFile4USD {
      * @param startLifeline 起点生命线
      * @param endLifeline   终点生命线
      * @param message       消息内容
+     * @param link          链接
      */
-    public void addAsyncMessage(String startLifeline, String endLifeline, String message) {
-        addMessage(startLifeline, endLifeline, message, MessageTypeEnum.MTE_ASYNC);
+    public void addAsyncMessage(String startLifeline, String endLifeline, String message, String link) {
+        addMessage(MessageTypeEnum.MTE_ASYNC, startLifeline, endLifeline, message, link);
     }
 
     /**
@@ -174,15 +208,30 @@ public class RunnerGenTextFile4USD {
     }
 
     // 添加消息
-    private void addMessage(String startLifeline, String endLifeline, String message, MessageTypeEnum messageTypeEnum) {
+    private void addMessage(MessageTypeEnum messageTypeEnum, String startLifeline, String endLifeline, String message, String link) {
         checkStage();
+
+        if (CommonUtil.isStrEmpty(startLifeline)) {
+            throw new RuntimeException("起点生命线为空");
+        }
+        if (CommonUtil.isStrEmpty(endLifeline)) {
+            throw new RuntimeException("终点生命线为空");
+        }
+        if (CommonUtil.isStrEmpty(message)) {
+            throw new RuntimeException("消息内容为空");
+        }
 
         // 添加消息起点及终点对应的生命线
         String startLifelineAlias = addLifeline(startLifeline);
         String endLifelineAlias = addLifeline(endLifeline);
 
-        String messageContent = startLifelineAlias + messageTypeEnum.getFlag() + endLifelineAlias + USDDIConstants.MESSAGE_TEXT_FLAG + message;
-        messageList.add(messageContent);
+        StringBuilder messageContent = new StringBuilder();
+        messageContent.append(startLifelineAlias).append(messageTypeEnum.getFlag()).append(endLifelineAlias).
+                append(USDDIConstants.MESSAGE_TEXT_FLAG).append(message);
+        if (link != null) {
+            messageContent.append(USDDIConstants.LINK_FLAG).append(link);
+        }
+        messageList.add(messageContent.toString());
     }
 
 }

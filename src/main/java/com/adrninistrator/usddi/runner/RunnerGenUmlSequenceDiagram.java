@@ -6,6 +6,7 @@ import com.adrninistrator.usddi.conf.ConfPositionInfo;
 import com.adrninistrator.usddi.dto.MessageInText;
 import com.adrninistrator.usddi.dto.UsedVariables;
 import com.adrninistrator.usddi.enums.MessageTypeEnum;
+import com.adrninistrator.usddi.handler.DescriptionHandler;
 import com.adrninistrator.usddi.handler.EndAllHandler;
 import com.adrninistrator.usddi.handler.EndPartHandler;
 import com.adrninistrator.usddi.handler.LifelineHandler;
@@ -41,11 +42,15 @@ public class RunnerGenUmlSequenceDiagram {
     private RspMessageHandler rspMessageHandler = null;
     private SelfCallMessageHandler selfCallMessageHandler = null;
 
+    private DescriptionHandler descriptionHandler = null;
     private LifelineHandler lifelineHandler = null;
     private EndAllHandler endAllHandler = null;
     private EndPartHandler endPartHandler = null;
 
     private DrawIoUSDXmlGen drawIoUSDXmlGen = null;
+
+    // 记录是否已处理过描述
+    private boolean handleDescriptionDone = false;
 
     // 记录是否已处理完毕前面的lifeline的name
     private boolean handleLifelineNameDone = false;
@@ -77,6 +82,7 @@ public class RunnerGenUmlSequenceDiagram {
         rspMessageHandler = new RspMessageHandler();
         selfCallMessageHandler = new SelfCallMessageHandler();
 
+        descriptionHandler = new DescriptionHandler();
         lifelineHandler = new LifelineHandler();
         endAllHandler = new EndAllHandler();
         endPartHandler = new EndPartHandler();
@@ -133,10 +139,21 @@ public class RunnerGenUmlSequenceDiagram {
                 // 标记上一行非空行
                 lastLineIsEmpty = false;
 
-                if (line.startsWith(USDDIConstants.LIFELINE_TITLE_FLAG)) {
+                if (line.startsWith(USDDIConstants.DESCRIPTION_FLAG)) {
+                    // 当前行为描述
+                    if (handleDescriptionDone) {
+                        System.err.println("只允许在生命线及消息前指定一个描述，第" + lineNum + "行还是描述: " + line);
+                        return false;
+                    }
+
+                    // 处理描述
+                    descriptionHandler.handleDescription(line);
+
+                    handleDescriptionDone = true;
+                } else if (line.startsWith(USDDIConstants.LIFELINE_TITLE_FLAG)) {
                     // 当前行为lifeline的name
                     if (handleLifelineNameDone) {
-                        System.err.println("lifeline的name已处理完毕，第" + lineNum + "行还是lifeline的name: " + line);
+                        System.err.println("生命线名称已处理完毕，第" + lineNum + "行还是生命线名称: " + line);
                         return false;
                     }
 
@@ -145,22 +162,24 @@ public class RunnerGenUmlSequenceDiagram {
                         System.err.println("第" + lineNum + "行lifeline name处理失败: " + line);
                         return false;
                     }
-                    continue;
-                }
-
-                // 当前行为Message
-                if (!handleMessage(line, lineNum)) {
-                    return false;
+                } else {
+                    // 当前行为Message
+                    if (!handleMessage(line, lineNum)) {
+                        return false;
+                    }
                 }
             }
 
+            // 循环结束
             // 若上一行为非空行，执行部分结束的操作
             if (!lastLineIsEmpty && !endPartHandler.handle()) {
                 return false;
             }
 
             // 全部结束
-            endAllHandler.handle();
+            if(!endAllHandler.handle()){
+                return false;
+            }
 
             // 生成drawio的XML文件
             if (!drawIoUSDXmlGen.generate(outputFilePath)) {
@@ -193,8 +212,8 @@ public class RunnerGenUmlSequenceDiagram {
             // 记录lifeline的name已处理完毕
             handleLifelineNameDone = true;
 
-            // 初始时，当前处理到的y坐标值设置为Lifeline方框高度
-            usedVariables.setCurrentY(confPositionInfo.getLifelineBoxHeight());
+            // 第一次处理消息时，当前处理到的y坐标值加上Lifeline方框高度
+            usedVariables.addCurrentY(confPositionInfo.getLifelineBoxHeight());
         }
 
         // 获得Message中的标志

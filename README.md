@@ -21,6 +21,7 @@
 生成以上UML时序图的文本如下：
 
 ```
+>><font color="#0000ff"><u>这是一个描述</u></font><br>end~这是一个链接
 @<font style="font-size: 17px" face="幼圆" color="#000000"><b><i>小<br>明</i></b></font> as xm
 @爸爸
 @妈妈 as mm
@@ -33,7 +34,7 @@ mm=>老师:小明今天不舒服<br>想请个假
 妈妈<=老师:<font style="font-size: 16px" face="幼圆" color="#0000ff"><b><i>稍等我查一下记录<br>等会回复你</i></b></font>
 xm<=妈妈:<u>老师说要等一会</u>
 
-老师=>老师:让我看看小明的请假记录
+老师=>老师:让我看看小明的请假记录~https://www.baidu.com
 老师=>qjxt:查询小明的请假记录
 老师<=请假<br>系统:返回数据<br>今年共请假0次
 老师=>妈妈:那就让他休息一天吧
@@ -77,7 +78,7 @@ sh run.sh [文本文件路径]
 - Gradle
 
 ```
-testImplementation 'com.github.adrninistrator:uml-sequence-diagram-drawio:0.0.2'
+testImplementation 'com.github.adrninistrator:uml-sequence-diagram-drawio:0.0.3'
 ```
 
 - Maven
@@ -86,7 +87,7 @@ testImplementation 'com.github.adrninistrator:uml-sequence-diagram-drawio:0.0.2'
 <dependency>
   <groupId>com.github.adrninistrator</groupId>
   <artifactId>uml-sequence-diagram-drawio</artifactId>
-  <version>0.0.2</version>
+  <version>0.0.3</version>
   <type>provided</type>
 </dependency>
 ```
@@ -96,6 +97,12 @@ testImplementation 'com.github.adrninistrator:uml-sequence-diagram-drawio:0.0.2'
 ## 3.2. 输入文本要求
 
 ### 3.2.1. 输入文本关键字
+
+以下关键字用于指定描述：
+
+```
+>>
+```
 
 以下关键字用于指定生命线的名称：
 
@@ -113,6 +120,12 @@ as
 :
 ```
 
+以下关键字用于对描述或消息指定链接：
+
+```
+~
+```
+
 以下关键字用于指定注释：
 
 ```
@@ -121,9 +134,43 @@ as
 
 ### 3.2.2. 输入文本格式
 
-#### 3.2.2.1. 生命线格式
+#### 3.2.2.1. 描述格式
 
-在输入文本中前面的内容，使用以下格式指定生命线，生命线在输入文本中出现的顺序（从上往下）与在UML时序图中的展示顺序（从左往右）一致。
+描述是指时序图最上部用于说明的文字，与时序图没有关联，仅起说明作用。
+
+- \>\>description
+
+使用“\>\>description”格式指定描述，“description”为描述的内容，可指定任意内容；
+
+描述需要在输入文本的最前面指定，只能指定一个描述，也可以不指定。
+
+可使用HTML标签设置描述内容的样式，如换行等，可参考后续内容。
+
+##### 3.2.2.1.1. 链接格式
+
+- \>\>description~link
+
+使用“~link”格式指定描述对应的链接，“link”为链接的内容；
+
+点击指定了链接的描述内容后，会显示对应的链接，如下所示：
+
+![](pic/link_description.png)
+
+链接内容可以指定为一般的文字，也可以指定为URL或文件路径（file://），如下所示：
+
+```
+file://C:\Windows\System32\calc.exe
+file://C:\Windows\system.ini
+https://www.baidu.com
+```
+
+当链接内容指定为URL时，点击链接时会使用默认浏览器打开对应URL；
+
+当链接内容指定为文件路径，点击链接时会使用对应文件格式的默认软件打开文件，若对应文件格式未指定默认软件，则不会打开，需要先设置。
+
+#### 3.2.2.2. 生命线格式
+
+在输入文本中前面的内容（若有指定描述，则在描述之后），使用以下格式指定生命线，生命线在输入文本中出现的顺序（从上往下）与在UML时序图中的展示顺序（从左往右）一致。
 
 - @name
 
@@ -133,41 +180,49 @@ as
 
 为了简化生命线名称，可使用“@name as alias”格式指定生命线的名称，及别名，“alias”为生命线的别名；
 
-#### 3.2.2.2. 消息格式
+#### 3.2.2.3. 消息格式
 
 在输入文本中后面面的内容，使用以下格式指定消息，消息在输入文本中出现的顺序（从上往下）与在UML时序图中的展示顺序（从上往下）一致。
 
-- x=>y:m
+- x=>y:m~L
 
-使用“x=>y:m”格式指定同步请求消息；
+使用“x=>y:m~L”格式指定同步请求消息；
 
 “x”为起点生命线的名称或别名，“y”为终点生命线的名称或别名，“m”为消息内容；
 
-- x<=y:m
+- x<=y:m~L
 
-使用“x<=y:m”格式指定返回消息；
+使用“x<=y:m~L”格式指定返回消息；
 
 “y”为起点生命线的名称或别名，“x”为终点生命线的名称或别名，“m”为消息内容；
 
 同步请求消息与返回消息需要在正确的位置成对出现；
 
-- x=>x:m
+- x=>x:m~L
 
-使用“x=>x:m”格式指定自调用消息；
+使用“x=>x:m~L”格式指定自调用消息；
 
 “x”为生命线的名称或别名，“m”为消息内容；
 
-- x->y:m
+- x->y:m~L
 
-使用“x->y:m”格式指定异步消息；
+使用“x->y:m~L”格式指定异步消息；
 
-“x”为起点生命线的名称或别名，“y”为终点生命线的名称或别名，“m”为消息内容。
+“x”为起点生命线的名称或别名，“y”为终点生命线的名称或别名，“m”为消息内容；
 
-#### 3.2.2.3. 注释格式
+##### 3.2.2.3.1. 链接格式
+
+以上消息内容中的“L”为链接，可以不指定，格式已在前文说明；
+
+为消息指定链接后的示例如下：
+
+![](pic/link_message.png)
+
+#### 3.2.2.4. 注释格式
 
 在输入文本中，以“#”开头的行代表注释。
 
-#### 3.2.2.4. 时序图开始新的阶段格式
+#### 3.2.2.5. 时序图开始新的阶段格式
 
 有时可能需要在一个时序图中展示多个不同阶段的时序图，例如在阶段1中消息最初的起点对应生命线1，在阶段2中消息最初的起点对应生命线2，在这种情况下，可在每个阶段的消息之间指定一个或多个空行，如下所示：
 
@@ -325,6 +380,7 @@ as
 |方法名|功能|
 |---|---|
 |init|初始化|
+|writeDescription|设置描述|
 |writeComment|添加注释|
 |addReqMessage|添加同步请求消息|
 |addRspMessage|添加返回消息|
@@ -343,6 +399,9 @@ System.out.println(filePath);
 RunnerGenTextFile4USD runnerGenTextFile4USD = new RunnerGenTextFile4USD();
 
 try (BufferedWriter writer = runnerGenTextFile4USD.init(filePath)) {
+    // 设置描述
+    runnerGenTextFile4USD.writeDescription("description", "descriptionLink");
+
     // 添加注释
     runnerGenTextFile4USD.writeComment("111");
     runnerGenTextFile4USD.writeComment("222");

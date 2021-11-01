@@ -1,6 +1,9 @@
 package com.adrninistrator.usddi.handler;
 
+import com.adrninistrator.usddi.dto.LifelineInfo;
 import com.adrninistrator.usddi.handler.base.BaseHandler;
+
+import java.util.List;
 
 /**
  * @author adrninistrator
@@ -9,8 +12,22 @@ import com.adrninistrator.usddi.handler.base.BaseHandler;
  */
 public class EndAllHandler extends BaseHandler {
 
-    public void handle() {
-        // 完全处理结束时，将Lifeline的最下端y坐标加上Message（及与Lifeline之间）垂直间距
-        usedVariables.setTotalHeight(usedVariables.getCurrentY().add(confPositionInfo.getMessageVerticalSpacing()));
+    public boolean handle() {
+        // 完全处理结束时的处理
+
+        List<LifelineInfo> lifelineInfoList = usedVariables.getLifelineInfoList();
+        if (lifelineInfoList.isEmpty()) {
+            System.err.println("未指定生命线");
+            return false;
+        }
+
+        // 设置整个区域的宽度，等于最后一个生命线中点X坐标，加上生命线宽度的一半
+        LifelineInfo lastLifeline = lifelineInfoList.get(lifelineInfoList.size() - 1);
+        usedVariables.setTotalWidth(lastLifeline.getCenterX().add(confPositionInfo.getLifelineBoxWidthHalf()));
+
+        // 设置Lifeline的总高度，等于当前处理到的y坐标加上Message（及与Lifeline之间）垂直间距，减去Lifeline的起始y坐标
+        usedVariables.setLifelineHeight(usedVariables.getCurrentY().add(confPositionInfo.getMessageVerticalSpacing()).subtract(usedVariables.getLifelineStartY()));
+
+        return true;
     }
 }

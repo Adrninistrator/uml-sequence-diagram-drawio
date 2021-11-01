@@ -21,6 +21,9 @@ public class MessageInText {
     // Message类型
     private MessageTypeEnum messageType;
 
+    // 链接
+    private String link;
+
     public Integer getStartLifelineSeq() {
         return startLifelineSeq;
     }
@@ -51,5 +54,13 @@ public class MessageInText {
 
     public void setMessageType(MessageTypeEnum messageType) {
         this.messageType = messageType;
+    }
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
     }
 }

@@ -3,6 +3,7 @@ package com.adrninistrator.usddi.handler.base;
 import com.adrninistrator.usddi.common.USDDIConstants;
 import com.adrninistrator.usddi.dto.*;
 import com.adrninistrator.usddi.enums.MessageTypeEnum;
+import com.adrninistrator.usddi.util.CommonUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,7 +83,18 @@ public abstract class BaseMessageHandler extends BaseHandler {
             return null;
         }
 
-        String messageText = text.substring(messageTextIndex + USDDIConstants.MESSAGE_TEXT_FLAG.length()).trim();
+        int linkFlagIndex = text.indexOf(USDDIConstants.LINK_FLAG);
+        String link = null;
+
+        String messageText;
+        if (linkFlagIndex != -1) {
+            // 指定了链接
+            messageText = text.substring(messageTextIndex + USDDIConstants.MESSAGE_TEXT_FLAG.length(), linkFlagIndex).trim();
+            link = text.substring(linkFlagIndex + USDDIConstants.LINK_FLAG.length()).trim();
+        } else {
+            // 未指定链接
+            messageText = text.substring(messageTextIndex + USDDIConstants.MESSAGE_TEXT_FLAG.length()).trim();
+        }
         if (messageText.isEmpty()) {
             System.err.println("当前Message文字为空");
             return null;
@@ -118,6 +130,10 @@ public abstract class BaseMessageHandler extends BaseHandler {
             messageInText.setMessageType(MessageTypeEnum.MTE_RSP);
         } else if (USDDIConstants.MESSAGE_ASYNC_FLAG.equals(messageFlagIndex.getFlag())) {
             messageInText.setMessageType(MessageTypeEnum.MTE_ASYNC);
+        }
+
+        if (!CommonUtil.isStrEmpty(link)) {
+            messageInText.setLink(link);
         }
 
         return messageInText;

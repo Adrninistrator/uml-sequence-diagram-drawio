@@ -10,6 +10,9 @@ import java.util.*;
  */
 public class UsedVariables {
 
+    // 记录描述
+    private DescriptionInfo descriptionInfo = new DescriptionInfo();
+
     // 记录Lifeline
     private List<LifelineInfo> lifelineInfoList = new ArrayList<>();
 
@@ -31,8 +34,14 @@ public class UsedVariables {
     // 当前处理到的y坐标
     private BigDecimal currentY = BigDecimal.ZERO;
 
+    // 整个区域的宽度
+    private BigDecimal totalWidth;
+
     // 整个Lifeline的高度
-    private BigDecimal totalHeight;
+    private BigDecimal lifelineHeight;
+
+    // Lifeline的起始y坐标
+    private BigDecimal lifelineStartY = BigDecimal.ZERO;
 
     // 最初的起点Lifeline序号
     private Integer firstStartLifelineSeq;
@@ -51,6 +60,14 @@ public class UsedVariables {
         this.currentY = currentY.add(addValue);
     }
     //
+
+    public DescriptionInfo getDescriptionInfo() {
+        return descriptionInfo;
+    }
+
+    public void setDescriptionInfo(DescriptionInfo descriptionInfo) {
+        this.descriptionInfo = descriptionInfo;
+    }
 
     public List<LifelineInfo> getLifelineInfoList() {
         return lifelineInfoList;
@@ -108,12 +125,28 @@ public class UsedVariables {
         this.currentY = currentY;
     }
 
-    public BigDecimal getTotalHeight() {
-        return totalHeight;
+    public BigDecimal getTotalWidth() {
+        return totalWidth;
     }
 
-    public void setTotalHeight(BigDecimal totalHeight) {
-        this.totalHeight = totalHeight;
+    public void setTotalWidth(BigDecimal totalWidth) {
+        this.totalWidth = totalWidth;
+    }
+
+    public BigDecimal getLifelineHeight() {
+        return lifelineHeight;
+    }
+
+    public void setLifelineHeight(BigDecimal lifelineHeight) {
+        this.lifelineHeight = lifelineHeight;
+    }
+
+    public BigDecimal getLifelineStartY() {
+        return lifelineStartY;
+    }
+
+    public void setLifelineStartY(BigDecimal lifelineStartY) {
+        this.lifelineStartY = lifelineStartY;
     }
 
     public Integer getFirstStartLifelineSeq() {
@@ -122,5 +155,9 @@ public class UsedVariables {
 
     public void setFirstStartLifelineSeq(Integer firstStartLifelineSeq) {
         this.firstStartLifelineSeq = firstStartLifelineSeq;
+    }
+
+    public static void setInstance(UsedVariables instance) {
+        UsedVariables.instance = instance;
     }
 }

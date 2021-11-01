@@ -36,6 +36,7 @@ public class SelfCallMessageHandler extends BaseMessageHandler {
         selfCallMessageInfo.setMessageText(messageInText.getMessageText());
         selfCallMessageInfo.setStartLifelineSeq(messageInText.getStartLifelineSeq());
         selfCallMessageInfo.setEndLifelineSeq(messageInText.getEndLifelineSeq());
+        selfCallMessageInfo.setLink(messageInText.getLink());
 
         // 起点、点1：y坐标为当前处理到的y坐标
         selfCallMessageInfo.setStartY(usedVariables.getCurrentY());

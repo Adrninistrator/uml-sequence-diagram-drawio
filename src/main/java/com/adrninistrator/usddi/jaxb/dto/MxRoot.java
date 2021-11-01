@@ -12,6 +12,8 @@ public class MxRoot {
 
     private List<MxCell> mxCellList;
 
+    private List<UserObject> userObjectList;
+
     public List<MxCell> getMxCellList() {
         return mxCellList;
     }
@@ -19,5 +21,14 @@ public class MxRoot {
     @XmlElement(name = "mxCell")
     public void setMxCellList(List<MxCell> mxCellList) {
         this.mxCellList = mxCellList;
+    }
+
+    public List<UserObject> getUserObjectList() {
+        return userObjectList;
+    }
+
+    @XmlElement(name = "UserObject")
+    public void setUserObjectList(List<UserObject> userObjectList) {
+        this.userObjectList = userObjectList;
     }
 }

@@ -1,11 +1,15 @@
 package com.adrninistrator.usddi.common;
 
+import java.math.BigDecimal;
+
 /**
  * @author adrninistrator
  * @date 2021/9/15
  * @description:
  */
 public class USDDIConstants {
+
+    public static final String DESCRIPTION_FLAG = ">>";
 
     public static final String COMMENT_FLAG = "#";
 
@@ -20,6 +24,8 @@ public class USDDIConstants {
     public static final String MESSAGE_ASYNC_FLAG = "->";
 
     public static final String MESSAGE_TEXT_FLAG = ":";
+
+    public static final String LINK_FLAG = "~";
 
     public static final String CONF_DIR = "~usddi_conf";
 
@@ -80,6 +86,15 @@ public class USDDIConstants {
     public static final String KEY_TEXT_COLOR_OF_LIFELINE = "text.color.of.lifeline";
     //	文字颜色-Message
     public static final String KEY_TEXT_COLOR_OF_MESSAGE = "text.color.of.message";
+
+    // 未指定链接时的描述与生命线的垂直间距
+    public static final BigDecimal DESCRIPTION_WITHOUT_LINK_LIFELINE_VERTICAL_SPACING = BigDecimal.valueOf(60);
+
+    // 指定链接时的描述与生命线的垂直间距
+    public static final BigDecimal DESCRIPTION_WITH_LINK_LIFELINE_VERTICAL_SPACING = BigDecimal.valueOf(10);
+
+    // 描述的高度
+    public static final BigDecimal DESCRIPTION_HEIGHT = BigDecimal.valueOf(20);
 
     private USDDIConstants() {
         throw new IllegalStateException("illegal");
