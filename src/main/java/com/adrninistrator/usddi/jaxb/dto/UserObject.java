@@ -9,12 +9,13 @@ import javax.xml.bind.annotation.XmlType;
  * @date 2021/10/27
  * @description:
  */
-@XmlType(propOrder = {"mxCell", "id", "label", "link"})
+@XmlType(propOrder = {"mxCell", "id", "label", "link", "tooltip"})
 public class UserObject {
 
     private String id;
     private String label;
     private String link;
+    private String tooltip;
 
     private MxCell mxCell;
 
@@ -52,5 +53,14 @@ public class UserObject {
     @XmlAttribute(name = "link")
     public void setLink(String link) {
         this.link = link;
+    }
+
+    public String getTooltip() {
+        return tooltip;
+    }
+
+    @XmlAttribute(name = "tooltip")
+    public void setTooltip(String tooltip) {
+        this.tooltip = tooltip;
     }
 }

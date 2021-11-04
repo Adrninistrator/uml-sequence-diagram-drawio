@@ -8,6 +8,9 @@ import java.math.BigDecimal;
  * @description:
  */
 public class ConfStyleInfo {
+    // 自动为消息添加序号
+    private boolean messageAutoSeq;
+
     // 线条宽度-Lifeline
     private BigDecimal lineWidthOfLifeline;
 
@@ -57,6 +60,14 @@ public class ConfStyleInfo {
     }
 
     //
+    public boolean isMessageAutoSeq() {
+        return messageAutoSeq;
+    }
+
+    public void setMessageAutoSeq(boolean messageAutoSeq) {
+        this.messageAutoSeq = messageAutoSeq;
+    }
+
     public BigDecimal getLineWidthOfLifeline() {
         return lineWidthOfLifeline;
     }

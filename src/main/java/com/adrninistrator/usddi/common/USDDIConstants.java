@@ -58,6 +58,8 @@ public class USDDIConstants {
     // 两个部分之间的额外垂直间距
     public static final String KEY_PARTS_EXTRA_VERTICAL_SPACING = "parts.extra.vertical.spacing";
 
+    //	自动为消息添加序号
+    public static final String KEY_MESSAGE_AUTO_SEQ = "message.auto.seq";
     //	线条宽度-Lifeline
     public static final String KEY_LINE_WIDTH_OF_LIFELINE = "line.width.of.lifeline";
     //	线条宽度-Activation

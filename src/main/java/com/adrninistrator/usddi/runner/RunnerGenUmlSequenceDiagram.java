@@ -16,7 +16,7 @@ import com.adrninistrator.usddi.handler.message.ReqMessageHandler;
 import com.adrninistrator.usddi.handler.message.RspMessageHandler;
 import com.adrninistrator.usddi.handler.message.SelfCallMessageHandler;
 import com.adrninistrator.usddi.jaxb.generator.DrawIoUSDXmlGen;
-import com.adrninistrator.usddi.util.CommonUtil;
+import com.adrninistrator.usddi.util.USDDIUtil;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -67,7 +67,7 @@ public class RunnerGenUmlSequenceDiagram {
 
         RunnerGenUmlSequenceDiagram runner = new RunnerGenUmlSequenceDiagram();
         String txtFilePath = args[0];
-        String outputFilePath = txtFilePath + "-" + CommonUtil.currentTime() + USDDIConstants.EXT_DRAWIO;
+        String outputFilePath = txtFilePath + "-" + USDDIUtil.currentTime() + USDDIConstants.EXT_DRAWIO;
         runner.generate(txtFilePath, outputFilePath);
     }
 

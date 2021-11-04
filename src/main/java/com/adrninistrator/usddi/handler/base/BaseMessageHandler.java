@@ -3,7 +3,7 @@ package com.adrninistrator.usddi.handler.base;
 import com.adrninistrator.usddi.common.USDDIConstants;
 import com.adrninistrator.usddi.dto.*;
 import com.adrninistrator.usddi.enums.MessageTypeEnum;
-import com.adrninistrator.usddi.util.CommonUtil;
+import com.adrninistrator.usddi.util.USDDIUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -132,7 +132,7 @@ public abstract class BaseMessageHandler extends BaseHandler {
             messageInText.setMessageType(MessageTypeEnum.MTE_ASYNC);
         }
 
-        if (!CommonUtil.isStrEmpty(link)) {
+        if (!USDDIUtil.isStrEmpty(link)) {
             messageInText.setLink(link);
         }
 

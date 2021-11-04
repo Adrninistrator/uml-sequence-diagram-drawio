@@ -43,6 +43,10 @@ xm<=妈妈:<u>老师说要等一会</u>
 妈妈->xm:老师同意你请假了
 ```
 
+`默认会为每个消息自动添加序号，可以通过后续说明的配置关闭。`
+
+`将鼠标移到生命线或激活上方后，会显示对应生命线的描述，便于在时序图较长时查看。`
+
 # 3. 根据文本文件生成UML时序图
 
 本工具代码地址为： [https://github.com/Adrninistrator/uml-sequence-diagram-drawio/](https://github.com/Adrninistrator/uml-sequence-diagram-drawio/) 。
@@ -78,7 +82,7 @@ sh run.sh [文本文件路径]
 - Gradle
 
 ```
-testImplementation 'com.github.adrninistrator:uml-sequence-diagram-drawio:0.0.3'
+testImplementation 'com.github.adrninistrator:uml-sequence-diagram-drawio:0.0.4'
 ```
 
 - Maven
@@ -87,7 +91,7 @@ testImplementation 'com.github.adrninistrator:uml-sequence-diagram-drawio:0.0.3'
 <dependency>
   <groupId>com.github.adrninistrator</groupId>
   <artifactId>uml-sequence-diagram-drawio</artifactId>
-  <version>0.0.3</version>
+  <version>0.0.4</version>
   <type>provided</type>
 </dependency>
 ```
@@ -272,6 +276,7 @@ https://www.baidu.com
 
 |参数名称|参数作用|是否允许为空|默认值|
 |---|---|---|---|
+|message.auto.seq|自动为消息添加序号|可选|是|
 |line.width.of.lifeline|线条宽度-生命线|可选|1|
 |line.width.of.activation|线条宽度-激活|可选|1|
 |line.width.of.message|线条宽度-消息|可选|1|

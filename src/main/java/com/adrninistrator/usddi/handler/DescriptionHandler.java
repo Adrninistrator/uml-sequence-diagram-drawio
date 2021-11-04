@@ -3,7 +3,7 @@ package com.adrninistrator.usddi.handler;
 import com.adrninistrator.usddi.common.USDDIConstants;
 import com.adrninistrator.usddi.dto.DescriptionInfo;
 import com.adrninistrator.usddi.handler.base.BaseHandler;
-import com.adrninistrator.usddi.util.CommonUtil;
+import com.adrninistrator.usddi.util.USDDIUtil;
 
 /**
  * @author adrninistrator
@@ -41,7 +41,7 @@ public class DescriptionHandler extends BaseHandler {
         // 处理当前处理到的y坐标，加上描述的高度
         usedVariables.addCurrentY(USDDIConstants.DESCRIPTION_HEIGHT);
 
-        if (!CommonUtil.isStrEmpty(link)) {
+        if (!USDDIUtil.isStrEmpty(link)) {
             // 未指定链接
             descriptionInfo.setLink(link);
             // 处理当前处理到的y坐标，加上描述与生命线的间距

@@ -6,7 +6,7 @@ import com.adrninistrator.usddi.conf.ConfStyleInfo;
 import com.adrninistrator.usddi.dto.*;
 import com.adrninistrator.usddi.jaxb.dto.*;
 import com.adrninistrator.usddi.jaxb.util.JAXBUtil;
-import com.adrninistrator.usddi.util.CommonUtil;
+import com.adrninistrator.usddi.util.USDDIUtil;
 
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
@@ -31,14 +31,14 @@ public class DrawIoUSDXmlGen {
     private static final String ID_ACTIVATION = "activation-";
     private static final String ID_MESSAGE = "message-";
 
-    private UsedVariables usedVariables = UsedVariables.getInstance();
-    private ConfPositionInfo confPositionInfo = ConfPositionInfo.getInstance();
-    private ConfStyleInfo confStyleInfo = ConfStyleInfo.getInstance();
+    final private UsedVariables usedVariables = UsedVariables.getInstance();
+    final private ConfPositionInfo confPositionInfo = ConfPositionInfo.getInstance();
+    final private ConfStyleInfo confStyleInfo = ConfStyleInfo.getInstance();
 
-    private DescriptionInfo descriptionInfo = usedVariables.getDescriptionInfo();
-    private List<LifelineInfo> lifelineInfoList = usedVariables.getLifelineInfoList();
-    private Map<Integer, List<ActivationInfo>> activationMap = usedVariables.getActivationMap();
-    private List<MessageInfo> messageInfoList = usedVariables.getMessageInfoList();
+    final private DescriptionInfo descriptionInfo = usedVariables.getDescriptionInfo();
+    final private List<LifelineInfo> lifelineInfoList = usedVariables.getLifelineInfoList();
+    final private Map<Integer, List<ActivationInfo>> activationMap = usedVariables.getActivationMap();
+    final private List<MessageInfo> messageInfoList = usedVariables.getMessageInfoList();
 
     private String timestamp;
 
@@ -66,17 +66,16 @@ public class DrawIoUSDXmlGen {
                 StandardCharsets.UTF_8))) {
             // 生成基本数据
             MxGraphModel mxGraphModel = genBaseData();
-            List<MxCell> mxCellList = mxGraphModel.getRoot().getMxCellList();
             List<UserObject> userObjectList = mxGraphModel.getRoot().getUserObjectList();
 
             // 处理描述
             handleDescription(userObjectList);
 
             // 处理Lifeline
-            handleLifeline(mxCellList);
+            handleLifeline(userObjectList);
 
             // 处理Activation
-            handleActivation(mxCellList);
+            handleActivation(userObjectList);
 
             // 处理Message
             handleMessage(userObjectList);
@@ -177,14 +176,19 @@ public class DrawIoUSDXmlGen {
     }
 
     // 处理Lifeline
-    private void handleLifeline(List<MxCell> mxCellList) {
+    private void handleLifeline(List<UserObject> userObjectList) {
         for (LifelineInfo lifelineInfo : lifelineInfoList) {
+            UserObject userObject = new UserObject();
             MxCell lifelineMxCell = new MxCell();
-            lifelineMxCell.setId(genElementId(ID_LIFELINE));
+            userObject.setMxCell(lifelineMxCell);
+
+            userObject.setId(genElementId(ID_LIFELINE));
             // 处理文字及字体
             String text = handleTextWithFont(lifelineInfo.getDisplayedName(),
                     confStyleInfo.getTextFontOfLifeline(), confStyleInfo.getTextSizeOfLifeline(), confStyleInfo.getTextColorOfLifeline());
-            lifelineMxCell.setValue(text);
+            userObject.setLabel(text);
+
+            userObject.setTooltip(lifelineInfo.getDisplayedName());
 
             // 处理Lifeline样式
             String style = getLifelineStyle();
@@ -200,12 +204,12 @@ public class DrawIoUSDXmlGen {
             lifelineMxGeometry.setHeight(usedVariables.getLifelineHeight().toPlainString());
             lifelineMxGeometry.setAs(MX_AS_GEOMETRY);
 
-            mxCellList.add(lifelineMxCell);
+            userObjectList.add(userObject);
         }
     }
 
     // 处理Activation
-    private void handleActivation(List<MxCell> mxCellList) {
+    private void handleActivation(List<UserObject> userObjectList) {
         int lifelineInfoListSize = lifelineInfoList.size();
         for (int i = 0; i < lifelineInfoListSize; i++) {
             LifelineInfo lifelineInfo = lifelineInfoList.get(i);
@@ -216,9 +220,13 @@ public class DrawIoUSDXmlGen {
             }
 
             for (ActivationInfo activationInfo : activationInfoList) {
+                UserObject userObject = new UserObject();
                 MxCell activationMxCell = new MxCell();
-                activationMxCell.setId(genElementId(ID_ACTIVATION));
-                activationMxCell.setValue("");
+                userObject.setMxCell(activationMxCell);
+
+                userObject.setId(genElementId(ID_ACTIVATION));
+                userObject.setLabel("");
+                userObject.setTooltip(lifelineInfo.getDisplayedName());
 
                 // 处理Activation样式
                 String style = getActivationStyle();
@@ -234,7 +242,7 @@ public class DrawIoUSDXmlGen {
                 activationMxGeometry.setHeight(activationInfo.getEndY().subtract(activationInfo.getStartY()).toPlainString());
                 activationMxGeometry.setAs(MX_AS_GEOMETRY);
 
-                mxCellList.add(activationMxCell);
+                userObjectList.add(userObject);
             }
         }
     }
@@ -356,10 +364,10 @@ public class DrawIoUSDXmlGen {
         if (confStyleInfo.getLineWidthOfLifeline() != null) {
             map.put("strokeWidth", confStyleInfo.getLineWidthOfLifeline().toPlainString());
         }
-        if (!CommonUtil.isStrEmpty(confStyleInfo.getLineColorOfLifeline())) {
+        if (!USDDIUtil.isStrEmpty(confStyleInfo.getLineColorOfLifeline())) {
             map.put("strokeColor", confStyleInfo.getLineColorOfLifeline());
         }
-        if (!CommonUtil.isStrEmpty(confStyleInfo.getBoxColorOfLifeline())) {
+        if (!USDDIUtil.isStrEmpty(confStyleInfo.getBoxColorOfLifeline())) {
             map.put("fillColor", confStyleInfo.getBoxColorOfLifeline());
         }
 
@@ -375,10 +383,10 @@ public class DrawIoUSDXmlGen {
         if (confStyleInfo.getLineWidthOfActivation() != null) {
             map.put("strokeWidth", confStyleInfo.getLineWidthOfActivation().toPlainString());
         }
-        if (!CommonUtil.isStrEmpty(confStyleInfo.getLineColorOfActivation())) {
+        if (!USDDIUtil.isStrEmpty(confStyleInfo.getLineColorOfActivation())) {
             map.put("strokeColor", confStyleInfo.getLineColorOfActivation());
         }
-        if (!CommonUtil.isStrEmpty(confStyleInfo.getBoxColorOfActivation())) {
+        if (!USDDIUtil.isStrEmpty(confStyleInfo.getBoxColorOfActivation())) {
             map.put("fillColor", confStyleInfo.getBoxColorOfActivation());
         }
 
@@ -391,7 +399,7 @@ public class DrawIoUSDXmlGen {
         if (confStyleInfo.getLineWidthOfMessage() != null) {
             map.put("strokeWidth", confStyleInfo.getLineWidthOfMessage().toPlainString());
         }
-        if (!CommonUtil.isStrEmpty(confStyleInfo.getLineColorOfMessage())) {
+        if (!USDDIUtil.isStrEmpty(confStyleInfo.getLineColorOfMessage())) {
             map.put("strokeColor", confStyleInfo.getLineColorOfMessage());
         }
         return map;
@@ -459,13 +467,13 @@ public class DrawIoUSDXmlGen {
         }
 
         StringBuilder textStyle = new StringBuilder();
-        if (!CommonUtil.isStrEmpty(textFont)) {
+        if (!USDDIUtil.isStrEmpty(textFont)) {
             textStyle.append(" ").append("face=\"").append(textFont).append("\"");
         }
         if (textSize != null) {
             textStyle.append(" ").append("style=\"font-size: ").append(textSize).append("px\"");
         }
-        if (!CommonUtil.isStrEmpty(textColor)) {
+        if (!USDDIUtil.isStrEmpty(textColor)) {
             textStyle.append(" ").append("color=\"").append(textColor).append("\"");
         }
         if (textStyle.length() == 0) {

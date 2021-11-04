@@ -10,11 +10,11 @@ import java.util.Calendar;
  * @date 2021/9/24
  * @description:
  */
-public class CommonUtil {
+public class USDDIUtil {
 
-    private static ClassLoader classLoader = CommonUtil.class.getClassLoader();
+    private static ClassLoader classLoader = USDDIUtil.class.getClassLoader();
 
-    private static String classpath = CommonUtil.class.getResource("/").getPath();
+    private static String classpath = USDDIUtil.class.getResource("/").getPath();
 
     public static boolean isStrEmpty(String str) {
         return str == null || str.trim().isEmpty();
@@ -40,7 +40,7 @@ public class CommonUtil {
                 calendar.get(Calendar.MINUTE), calendar.get(Calendar.SECOND), calendar.get(Calendar.MILLISECOND));
     }
 
-    private CommonUtil() {
+    private USDDIUtil() {
         throw new IllegalStateException("illegal");
     }
 }

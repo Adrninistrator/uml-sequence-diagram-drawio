@@ -1,7 +1,7 @@
 package com.adrninistrator.usddi.conf;
 
 import com.adrninistrator.usddi.common.USDDIConstants;
-import com.adrninistrator.usddi.util.CommonUtil;
+import com.adrninistrator.usddi.util.USDDIUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,7 +30,7 @@ public class ConfManager {
     public boolean handlePositionConf() {
         String configFilePath = USDDIConstants.CONF_DIR + File.separator + USDDIConstants.CONF_FILE_POSITION;
 
-        try (Reader reader = new InputStreamReader(new FileInputStream(CommonUtil.findFile(configFilePath)), StandardCharsets.UTF_8)) {
+        try (Reader reader = new InputStreamReader(new FileInputStream(USDDIUtil.findFile(configFilePath)), StandardCharsets.UTF_8)) {
             Properties properties = new Properties();
             properties.load(reader);
 
@@ -100,10 +100,11 @@ public class ConfManager {
     public boolean handleStyleConf() {
         String configFilePath = USDDIConstants.CONF_DIR + File.separator + USDDIConstants.CONF_FILE_STYLE;
 
-        try (Reader reader = new InputStreamReader(new FileInputStream(CommonUtil.findFile(configFilePath)), StandardCharsets.UTF_8)) {
+        try (Reader reader = new InputStreamReader(new FileInputStream(USDDIUtil.findFile(configFilePath)), StandardCharsets.UTF_8)) {
             Properties properties = new Properties();
             properties.load(reader);
 
+            String strMessageAutoSeq = getStrValue(properties, USDDIConstants.KEY_MESSAGE_AUTO_SEQ, configFilePath, true);
             BigDecimal lineWidthOfLifeline = getBigDecimalValue(properties, USDDIConstants.KEY_LINE_WIDTH_OF_LIFELINE, configFilePath, true);
             BigDecimal lineWidthOfActivation = getBigDecimalValue(properties, USDDIConstants.KEY_LINE_WIDTH_OF_ACTIVATION, configFilePath, true);
             BigDecimal lineWidthOfMessage = getBigDecimalValue(properties, USDDIConstants.KEY_LINE_WIDTH_OF_MESSAGE, configFilePath, true);
@@ -120,6 +121,8 @@ public class ConfManager {
             String textColorOfMessage = getColor(properties, USDDIConstants.KEY_TEXT_COLOR_OF_MESSAGE, configFilePath, true);
 
             ConfStyleInfo confStyleInfo = ConfStyleInfo.getInstance();
+            boolean messageAutoSeq = !Boolean.FALSE.toString().equalsIgnoreCase(strMessageAutoSeq);
+            confStyleInfo.setMessageAutoSeq(messageAutoSeq);
             confStyleInfo.setLineWidthOfLifeline(lineWidthOfLifeline);
             confStyleInfo.setLineWidthOfActivation(lineWidthOfActivation);
             confStyleInfo.setLineWidthOfMessage(lineWidthOfMessage);
@@ -143,7 +146,7 @@ public class ConfManager {
     }
 
     private boolean checkBlank(String value, String key, String configFilePath, boolean allowEmpty) {
-        if (CommonUtil.isStrEmpty(value)) {
+        if (USDDIUtil.isStrEmpty(value)) {
             if (!allowEmpty) {
                 System.err.println("配置文件中未指定参数 " + configFilePath + " " + key);
             }
