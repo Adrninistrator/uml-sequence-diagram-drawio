@@ -20,8 +20,8 @@ public class EndAllHandler extends BaseHandler {
 
         List<LifelineInfo> lifelineInfoList = usedVariables.getLifelineInfoList();
         if (lifelineInfoList.isEmpty()) {
-            System.err.println("未指定生命线");
-            return false;
+            System.err.println("未指定生命线1");
+            return true;
         }
 
         // 设置整个区域的宽度，等于最后一个生命线中点X坐标，加上生命线宽度的一半

@@ -50,20 +50,20 @@ public class DrawIoUSDXmlGen {
      * @param xmlFilePath
      */
     public boolean generate(String xmlFilePath) {
-        if (lifelineInfoList.isEmpty()) {
-            System.err.println("未指定生命线");
-            return false;
-        }
-
-        if (messageInfoList.isEmpty()) {
-            System.err.println("未指定消息");
-            return false;
-        }
-
-        timestamp = String.valueOf(System.currentTimeMillis());
-
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(xmlFilePath),
                 StandardCharsets.UTF_8))) {
+            if (lifelineInfoList.isEmpty()) {
+                System.err.println("未指定生命线2");
+                return true;
+            }
+
+            if (messageInfoList.isEmpty()) {
+                System.err.println("未指定消息");
+                return true;
+            }
+
+            timestamp = String.valueOf(System.currentTimeMillis());
+
             // 生成基本数据
             MxGraphModel mxGraphModel = genBaseData();
             List<UserObject> userObjectList = mxGraphModel.getRoot().getUserObjectList();
