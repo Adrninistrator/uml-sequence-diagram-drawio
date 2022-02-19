@@ -1,9 +1,10 @@
 package com.adrninistrator.usddi.handler;
 
 import com.adrninistrator.usddi.common.USDDIConstants;
-import com.adrninistrator.usddi.dto.LifelineInfo;
-import com.adrninistrator.usddi.dto.LifelineName;
+import com.adrninistrator.usddi.dto.lifeline.LifelineInfo;
+import com.adrninistrator.usddi.dto.lifeline.LifelineName;
 import com.adrninistrator.usddi.handler.base.BaseHandler;
+import com.adrninistrator.usddi.logger.DebugLogger;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -18,6 +19,8 @@ public class LifelineHandler extends BaseHandler {
 
     // 添加Lifeline
     public boolean addLifeline(String text) {
+        DebugLogger.log(this.getClass(), "addLifeline", text);
+
         // 获得Lifeline的name及alias
         LifelineName lifelineName = getLifelineName(text);
         if (lifelineName == null) {
@@ -30,14 +33,14 @@ public class LifelineHandler extends BaseHandler {
         // 判断当前用于展示的name是否已记录
         Map<String, Integer> lifelineDisplayedNameMap = usedVariables.getLifelineDisplayedNameMap();
         if (lifelineDisplayedNameMap.get(displayedName) != null) {
-            System.err.println("指定的Lifeline用于展示的name重复: " + displayedName);
+            System.err.println("指定的生命线用于展示的名称重复: " + displayedName);
             return false;
         }
 
         // 判断当前用于展示的name是否已记录
         Map<String, Integer> lifelineNameAliasMap = usedVariables.getLifelineNameAliasMap();
         if (nameAlias != null && lifelineNameAliasMap.get(nameAlias) != null) {
-            System.err.println("指定的Lifeline的name别名重复: " + nameAlias);
+            System.err.println("指定的生命线的别名重复: " + nameAlias);
             return false;
         }
 
@@ -72,7 +75,7 @@ public class LifelineHandler extends BaseHandler {
     private LifelineName getLifelineName(String text) {
         String lifelineText = text.substring(USDDIConstants.LIFELINE_TITLE_FLAG.length());
         if (lifelineText.isEmpty()) {
-            System.err.println("指定的Lifeline name为空");
+            System.err.println("指定的生命线名称为空: " + text);
             return null;
         }
 
@@ -88,13 +91,13 @@ public class LifelineHandler extends BaseHandler {
         // 当前Lifeline的name有指定alias
         String displayedName = lifelineText.substring(0, aliasFlagIndex).trim();
         if (displayedName.isEmpty()) {
-            System.err.println("指定的Lifeline用于展示的name为空");
+            System.err.println("指定的生命线用于展示的名称为空: " + text);
             return null;
         }
 
         String alias = lifelineText.substring(aliasFlagIndex + USDDIConstants.LIFELINE_ALIAS_FLAG.length()).trim();
         if (alias.isEmpty()) {
-            System.err.println("指定的Lifeline的name别名为空");
+            System.err.println("指定的生命线的别名为空: " + text);
             return null;
         }
 

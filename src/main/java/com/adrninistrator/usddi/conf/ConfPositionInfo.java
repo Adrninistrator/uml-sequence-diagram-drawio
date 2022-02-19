@@ -9,37 +9,28 @@ import java.math.BigDecimal;
  */
 public class ConfPositionInfo {
 
-    // Lifeline中间点的水平间距
+    // 生命线中间点的水平间距
     private BigDecimal lifelineCenterHorizontalSpacing;
 
-    // Lifeline的方框宽度
+    // 生命线的方框宽度
     private BigDecimal lifelineBoxWidth;
 
-    // Lifeline的方框宽度的一半
+    // 生命线的方框宽度的一半
     private BigDecimal lifelineBoxWidthHalf;
 
-    // Lifeline的方框高度
+    // 生命线的方框高度
     private BigDecimal lifelineBoxHeight;
 
-    // Message（及与Lifeline之间）垂直间距
+    // 消息（及与生命线之间）垂直间距
     private BigDecimal messageVerticalSpacing;
 
-    // Message（及与Lifeline之间）垂直间距的一半
-    private BigDecimal messageVerticalSpacingHalf;
-
-    // Message请求及返回的垂直间距
-    private BigDecimal rspMessageVerticalSpacing;
-
-    // 自调用Message的水平宽度
+    // 自调用消息的水平宽度
     private BigDecimal selfCallHorizontalWidth;
 
-    // 自调用消息的垂直高度
-    private BigDecimal selfCallVerticalHeight;
-
-    // Activation的宽度
+    // 激活的宽度
     private BigDecimal activationWidth;
 
-    // Activation的宽度的一半
+    // 激活的宽度的一半
     private BigDecimal activationWidthHalf;
 
     // 两个部分之间的额外垂直间距
@@ -92,36 +83,12 @@ public class ConfPositionInfo {
         this.messageVerticalSpacing = messageVerticalSpacing;
     }
 
-    public BigDecimal getMessageVerticalSpacingHalf() {
-        return messageVerticalSpacingHalf;
-    }
-
-    public void setMessageVerticalSpacingHalf(BigDecimal messageVerticalSpacingHalf) {
-        this.messageVerticalSpacingHalf = messageVerticalSpacingHalf;
-    }
-
-    public BigDecimal getRspMessageVerticalSpacing() {
-        return rspMessageVerticalSpacing;
-    }
-
-    public void setRspMessageVerticalSpacing(BigDecimal rspMessageVerticalSpacing) {
-        this.rspMessageVerticalSpacing = rspMessageVerticalSpacing;
-    }
-
     public BigDecimal getSelfCallHorizontalWidth() {
         return selfCallHorizontalWidth;
     }
 
     public void setSelfCallHorizontalWidth(BigDecimal selfCallHorizontalWidth) {
         this.selfCallHorizontalWidth = selfCallHorizontalWidth;
-    }
-
-    public BigDecimal getSelfCallVerticalHeight() {
-        return selfCallVerticalHeight;
-    }
-
-    public void setSelfCallVerticalHeight(BigDecimal selfCallVerticalHeight) {
-        this.selfCallVerticalHeight = selfCallVerticalHeight;
     }
 
     public BigDecimal getActivationWidth() {
@@ -146,9 +113,5 @@ public class ConfPositionInfo {
 
     public void setPartsExtraVerticalSpacing(BigDecimal partsExtraVerticalSpacing) {
         this.partsExtraVerticalSpacing = partsExtraVerticalSpacing;
-    }
-
-    public static void setInstance(ConfPositionInfo instance) {
-        ConfPositionInfo.instance = instance;
     }
 }

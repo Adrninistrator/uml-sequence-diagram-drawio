@@ -1,4 +1,11 @@
-package com.adrninistrator.usddi.dto;
+package com.adrninistrator.usddi.dto.variables;
+
+import com.adrninistrator.usddi.dto.activation.ActivationInfo;
+import com.adrninistrator.usddi.dto.description.DescriptionInfo;
+import com.adrninistrator.usddi.dto.lifeline.LifelineInfo;
+import com.adrninistrator.usddi.dto.message.MessageInStack;
+import com.adrninistrator.usddi.dto.message.MessageInfo;
+import com.adrninistrator.usddi.logger.DebugLogger;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -29,7 +36,7 @@ public class UsedVariables {
     private Map<Integer, List<ActivationInfo>> activationMap = new HashMap<>();
 
     // Message栈
-    private Stack<MessageInStack> messageStack = new Stack<>();
+    private Deque<MessageInStack> messageStack = new ArrayDeque<>();
 
     // 当前处理到的y坐标
     private BigDecimal currentY = BigDecimal.ZERO;
@@ -46,6 +53,9 @@ public class UsedVariables {
     // 最初的起点Lifeline序号
     private Integer firstStartLifelineSeq;
 
+    // 当前部分的序号，从0开始
+    private int currentPartSeq = 0;
+
     private static UsedVariables instance;
 
     public static void reset() {
@@ -56,8 +66,13 @@ public class UsedVariables {
         return instance;
     }
 
-    public void addCurrentY(BigDecimal addValue) {
+    public void addCurrentY(Class clazz, String operate, BigDecimal addValue) {
+        DebugLogger.log(clazz, "addCurrentY", operate, addValue.toPlainString());
         this.currentY = currentY.add(addValue);
+    }
+
+    public void addCurrentPartSeq() {
+        this.currentPartSeq++;
     }
     //
 
@@ -109,11 +124,11 @@ public class UsedVariables {
         this.activationMap = activationMap;
     }
 
-    public Stack<MessageInStack> getMessageStack() {
+    public Deque<MessageInStack> getMessageStack() {
         return messageStack;
     }
 
-    public void setMessageStack(Stack<MessageInStack> messageStack) {
+    public void setMessageStack(Deque<MessageInStack> messageStack) {
         this.messageStack = messageStack;
     }
 
@@ -159,5 +174,13 @@ public class UsedVariables {
 
     public static void setInstance(UsedVariables instance) {
         UsedVariables.instance = instance;
+    }
+
+    public int getCurrentPartSeq() {
+        return currentPartSeq;
+    }
+
+    public void setCurrentPartSeq(int currentPartSeq) {
+        this.currentPartSeq = currentPartSeq;
     }
 }

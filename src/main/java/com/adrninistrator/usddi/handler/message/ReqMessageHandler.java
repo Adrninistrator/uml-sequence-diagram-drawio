@@ -1,11 +1,13 @@
 package com.adrninistrator.usddi.handler.message;
 
-import com.adrninistrator.usddi.dto.ActivationInfo;
-import com.adrninistrator.usddi.dto.MessageInStack;
-import com.adrninistrator.usddi.dto.MessageInText;
-import com.adrninistrator.usddi.dto.MessageInfo;
+import com.adrninistrator.usddi.dto.activation.ActivationInfo;
+import com.adrninistrator.usddi.dto.message.MessageInStack;
+import com.adrninistrator.usddi.dto.message.MessageInText;
+import com.adrninistrator.usddi.dto.message.MessageInfo;
 import com.adrninistrator.usddi.enums.MessageTypeEnum;
 import com.adrninistrator.usddi.handler.base.BaseMessageHandler;
+import com.adrninistrator.usddi.logger.DebugLogger;
+import com.adrninistrator.usddi.util.USDDIUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +22,8 @@ public class ReqMessageHandler extends BaseMessageHandler {
 
     @Override
     public boolean handleMessage(MessageInText messageInText) {
+        DebugLogger.logMessageInText(this.getClass(), "handleMessage", messageInText);
+
         // 检查栈顶元素
         if (!checkStackTop(messageInText)) {
             return false;
@@ -33,7 +37,7 @@ public class ReqMessageHandler extends BaseMessageHandler {
         // 检查终点Lifeline，不支持循环调用
         for (MessageInStack messageInStack : messageStack) {
             if (messageInText.getEndLifelineSeq().equals(messageInStack.getStartLifelineSeq())) {
-                System.err.println("不支持循环调用");
+                System.err.println("不支持循环调用，消息对应的生命线序号: " + DebugLogger.getLifelineSeq(messageInText.getEndLifelineSeq()));
                 return false;
             }
         }
@@ -44,36 +48,34 @@ public class ReqMessageHandler extends BaseMessageHandler {
         currentMessage.setEndLifelineSeq(messageInText.getEndLifelineSeq());
         messageStack.push(currentMessage);
 
-        // 处理当前处理到的y坐标，加上Message（及与Lifeline之间）垂直间距
-        usedVariables.addCurrentY(confPositionInfo.getMessageVerticalSpacing());
-
         // 记录Message的坐标
-        MessageInfo messageInfo = MessageInfo.genFromMessageInText(messageInText);
+        MessageInfo messageInfo = USDDIUtil.getMessageInfo(messageInText, usedVariables.getCurrentPartSeq());
         messageInfo.setMessageType(MessageTypeEnum.MTE_REQ);
 
         // 处理Message位置
-        setMessagePosition(messageInfo, messageInText);
+        handleMessagePosition(messageInfo);
 
-        // 记录表Message列表中
-        usedVariables.getMessageInfoList().add(messageInfo);
+        // 记录到Message列表中
+        messageInfoList.add(messageInfo);
 
         // Activation处理
-        handleActivation(messageInText);
+        handleActivation(messageInfo);
 
         return true;
     }
 
     // Activation处理
-    private void handleActivation(MessageInText messageInText) {
-        // 在记录Activation的Map中，终点Lifeline的Activation List中，增加一个Activation，起始y坐标为当前处理到的y坐标
+    private void handleActivation(MessageInfo messageInfo) {
+        // 在记录Activation的Map中，终点Lifeline的Activation List中，增加一个Activation，起始y坐标为消息的中y
         Map<Integer, List<ActivationInfo>> activationMap = usedVariables.getActivationMap();
-        List<ActivationInfo> endActivationInfoList = activationMap.computeIfAbsent(messageInText.getEndLifelineSeq(), k -> new ArrayList<>());
+        List<ActivationInfo> endActivationInfoList = activationMap.computeIfAbsent(messageInfo.getEndLifelineSeq(), k -> new ArrayList<>());
         ActivationInfo endActivationInfo = new ActivationInfo();
         endActivationInfoList.add(endActivationInfo);
-        endActivationInfo.setStartY(usedVariables.getCurrentY());
-        endActivationInfo.setEndY(null);
+        endActivationInfo.setTopY(messageInfo.getMiddleY());
+        endActivationInfo.setBottomY(null);
+        DebugLogger.logActivation(this.getClass(), "addActivation4EndLifeline", messageInfo.getEndLifelineSeq(), endActivationInfo);
 
         // 尝试为起点Lifeline增加Activation
-        tryAddActivation4StartLifeline(messageInText);
+        tryAddActivation4StartLifeline(messageInfo);
     }
 }

@@ -1,12 +1,11 @@
 package com.adrninistrator.usddi.handler.message;
 
-import com.adrninistrator.usddi.dto.LifelineInfo;
-import com.adrninistrator.usddi.dto.MessageInText;
-import com.adrninistrator.usddi.dto.SelfCallMessageInfo;
+import com.adrninistrator.usddi.dto.message.MessageInText;
+import com.adrninistrator.usddi.dto.message.MessageInfo;
 import com.adrninistrator.usddi.enums.MessageTypeEnum;
 import com.adrninistrator.usddi.handler.base.BaseMessageHandler;
-
-import java.util.List;
+import com.adrninistrator.usddi.logger.DebugLogger;
+import com.adrninistrator.usddi.util.USDDIUtil;
 
 /**
  * @author adrninistrator
@@ -17,6 +16,8 @@ public class SelfCallMessageHandler extends BaseMessageHandler {
 
     @Override
     public boolean handleMessage(MessageInText messageInText) {
+        DebugLogger.logMessageInText(this.getClass(), "handleMessage", messageInText);
+
         // 检查栈顶元素
         if (!checkStackTop(messageInText)) {
             return false;
@@ -27,51 +28,33 @@ public class SelfCallMessageHandler extends BaseMessageHandler {
             return false;
         }
 
-        // 处理当前处理到的y坐标，加上Message（及与Lifeline之间）垂直间距
-        usedVariables.addCurrentY(confPositionInfo.getMessageVerticalSpacing());
-
         // 记录Message的坐标
-        SelfCallMessageInfo selfCallMessageInfo = new SelfCallMessageInfo();
-        selfCallMessageInfo.setMessageType(MessageTypeEnum.MTE_SELF);
-        selfCallMessageInfo.setMessageText(messageInText.getMessageText());
-        selfCallMessageInfo.setStartLifelineSeq(messageInText.getStartLifelineSeq());
-        selfCallMessageInfo.setEndLifelineSeq(messageInText.getEndLifelineSeq());
-        selfCallMessageInfo.setLink(messageInText.getLink());
+        MessageInfo messageInfo = USDDIUtil.getMessageInfo(messageInText, usedVariables.getCurrentPartSeq());
+        messageInfo.setMessageType(MessageTypeEnum.MTE_SELF);
 
-        // 起点、点1：y坐标为当前处理到的y坐标
-        selfCallMessageInfo.setStartY(usedVariables.getCurrentY());
-        selfCallMessageInfo.setPoint1Y(usedVariables.getCurrentY());
+        /*
+            自调用消息高度处理，如果只有一行文字时会显得太矮
+            因此当高度比消息（及与生命线之间）垂直间距小时，将高度设置为消息（及与生命线之间）垂直间距
+         */
+        if (messageInfo.getHeight().compareTo(confPositionInfo.getMessageVerticalSpacing()) < 0) {
+            messageInfo.setHeight(confPositionInfo.getMessageVerticalSpacing());
+        }
 
-        List<LifelineInfo> lifelineInfoList = usedVariables.getLifelineInfoList();
-        LifelineInfo startEndLifelineInfo = lifelineInfoList.get(messageInText.getStartLifelineSeq());
+        // 处理Message位置
+        handleMessagePosition(messageInfo);
 
-        // 起点、终点：x坐标为起点Lifeline中间点的x坐标加上配置中指定的Activation宽度的一半
-        selfCallMessageInfo.setStartX(startEndLifelineInfo.getCenterX().add(confPositionInfo.getActivationWidthHalf()));
-        selfCallMessageInfo.setEndX(selfCallMessageInfo.getStartX());
-
-        // 点1、点2：x坐标为起点Lifeline中间点的x坐标加上配置中指定的Activation宽度的一半，再加上自调用Message的水平宽度
-        selfCallMessageInfo.setPoint1X(selfCallMessageInfo.getStartX().add(confPositionInfo.getSelfCallHorizontalWidth()));
-        selfCallMessageInfo.setPoint2X(selfCallMessageInfo.getPoint1X());
+        // 记录到Message列表中
+        messageInfoList.add(messageInfo);
 
         // Activation处理
-        handleActivation(messageInText);
-
-        // 处理当前处理到的y坐标，再加上自调用Message的垂直高度
-        usedVariables.addCurrentY(confPositionInfo.getSelfCallVerticalHeight());
-
-        // 终点、点2：y坐标为当前处理到的y坐标加上自调用Message的垂直高度
-        selfCallMessageInfo.setEndY(usedVariables.getCurrentY());
-        selfCallMessageInfo.setPoint2Y(usedVariables.getCurrentY());
-
-        // 记录表Message列表中
-        usedVariables.getMessageInfoList().add(selfCallMessageInfo);
+        handleActivation(messageInfo);
 
         return true;
     }
 
     // Activation处理
-    private void handleActivation(MessageInText messageInText) {
+    private void handleActivation(MessageInfo messageInfo) {
         // 尝试为起点Lifeline增加Activation
-        tryAddActivation4StartLifeline(messageInText);
+        tryAddActivation4StartLifeline(messageInfo);
     }
 }

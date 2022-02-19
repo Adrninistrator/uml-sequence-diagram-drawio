@@ -1,4 +1,4 @@
-package com.adrninistrator.usddi.dto;
+package com.adrninistrator.usddi.dto.message;
 
 import com.adrninistrator.usddi.enums.MessageTypeEnum;
 

@@ -3,7 +3,11 @@ package com.adrninistrator.usddi.jaxb.generator;
 import com.adrninistrator.usddi.common.USDDIConstants;
 import com.adrninistrator.usddi.conf.ConfPositionInfo;
 import com.adrninistrator.usddi.conf.ConfStyleInfo;
-import com.adrninistrator.usddi.dto.*;
+import com.adrninistrator.usddi.dto.activation.ActivationInfo;
+import com.adrninistrator.usddi.dto.description.DescriptionInfo;
+import com.adrninistrator.usddi.dto.lifeline.LifelineInfo;
+import com.adrninistrator.usddi.dto.message.MessageInfo;
+import com.adrninistrator.usddi.dto.variables.UsedVariables;
 import com.adrninistrator.usddi.jaxb.dto.*;
 import com.adrninistrator.usddi.jaxb.util.JAXBUtil;
 import com.adrninistrator.usddi.util.USDDIUtil;
@@ -53,7 +57,7 @@ public class DrawIoUSDXmlGen {
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(xmlFilePath),
                 StandardCharsets.UTF_8))) {
             if (lifelineInfoList.isEmpty()) {
-                System.err.println("未指定生命线2");
+                System.err.println("未指定生命线");
                 return true;
             }
 
@@ -237,9 +241,9 @@ public class DrawIoUSDXmlGen {
                 MxGeometry activationMxGeometry = new MxGeometry();
                 activationMxCell.setMxGeometry(activationMxGeometry);
                 activationMxGeometry.setX(lifelineInfo.getCenterX().subtract(confPositionInfo.getActivationWidthHalf()).toPlainString());
-                activationMxGeometry.setY(activationInfo.getStartY().toPlainString());
+                activationMxGeometry.setY(activationInfo.getTopY().toPlainString());
                 activationMxGeometry.setWidth(confPositionInfo.getActivationWidth().toPlainString());
-                activationMxGeometry.setHeight(activationInfo.getEndY().subtract(activationInfo.getStartY()).toPlainString());
+                activationMxGeometry.setHeight(activationInfo.getBottomY().subtract(activationInfo.getTopY()).toPlainString());
                 activationMxGeometry.setAs(MX_AS_GEOMETRY);
 
                 userObjectList.add(userObject);
@@ -275,12 +279,12 @@ public class DrawIoUSDXmlGen {
 
             MxPoint sourcePoint = new MxPoint();
             sourcePoint.setX(messageInfo.getStartX().toPlainString());
-            sourcePoint.setY(messageInfo.getStartY().toPlainString());
+            sourcePoint.setY(messageInfo.getMiddleY().toPlainString());
             sourcePoint.setAs(MX_AS_SOURCE_POINT);
 
             MxPoint targetPoint = new MxPoint();
             targetPoint.setX(messageInfo.getEndX().toPlainString());
-            targetPoint.setY(messageInfo.getEndY().toPlainString());
+            targetPoint.setY(messageInfo.getMiddleY().toPlainString());
             targetPoint.setAs(MX_AS_TARGET_POINT);
 
             mxPointList.add(sourcePoint);
@@ -300,14 +304,19 @@ public class DrawIoUSDXmlGen {
                     // 处理SelfMessage样式
                     style = getSelfMessageStyle();
 
-                    SelfCallMessageInfo selfCallMessageInfo = (SelfCallMessageInfo) messageInfo;
+                    // 对于自调用消息，y坐标需要单独设置
+                    sourcePoint.setY(messageInfo.getTopY().toPlainString());
+                    targetPoint.setY(messageInfo.getBottomY().toPlainString());
+                    // 对于自调用消息，起点x坐标对应左x坐标，终点x坐标对应右x坐标
+                    targetPoint.setX(messageInfo.getStartX().toPlainString());
+
                     MxPoint point1 = new MxPoint();
-                    point1.setX(selfCallMessageInfo.getPoint1X().toPlainString());
-                    point1.setY(selfCallMessageInfo.getPoint1Y().toPlainString());
+                    point1.setX(messageInfo.getEndX().toPlainString());
+                    point1.setY(messageInfo.getTopY().toPlainString());
 
                     MxPoint point2 = new MxPoint();
-                    point2.setX(selfCallMessageInfo.getPoint2X().toPlainString());
-                    point2.setY(selfCallMessageInfo.getPoint2Y().toPlainString());
+                    point2.setX(messageInfo.getEndX().toPlainString());
+                    point2.setY(messageInfo.getBottomY().toPlainString());
 
                     List<MxPoint> mxPointList4Self = new ArrayList<>(2);
                     mxPointList4Self.add(point1);

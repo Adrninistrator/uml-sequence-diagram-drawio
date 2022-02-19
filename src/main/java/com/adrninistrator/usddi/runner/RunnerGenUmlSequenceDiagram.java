@@ -3,19 +3,19 @@ package com.adrninistrator.usddi.runner;
 import com.adrninistrator.usddi.common.USDDIConstants;
 import com.adrninistrator.usddi.conf.ConfManager;
 import com.adrninistrator.usddi.conf.ConfPositionInfo;
-import com.adrninistrator.usddi.dto.MessageInText;
-import com.adrninistrator.usddi.dto.UsedVariables;
+import com.adrninistrator.usddi.dto.message.MessageInText;
+import com.adrninistrator.usddi.dto.variables.UsedVariables;
 import com.adrninistrator.usddi.enums.MessageTypeEnum;
 import com.adrninistrator.usddi.handler.DescriptionHandler;
 import com.adrninistrator.usddi.handler.EndAllHandler;
 import com.adrninistrator.usddi.handler.EndPartHandler;
 import com.adrninistrator.usddi.handler.LifelineHandler;
-import com.adrninistrator.usddi.handler.base.BaseMessageHandler;
 import com.adrninistrator.usddi.handler.message.AsyncMessageHandler;
 import com.adrninistrator.usddi.handler.message.ReqMessageHandler;
 import com.adrninistrator.usddi.handler.message.RspMessageHandler;
 import com.adrninistrator.usddi.handler.message.SelfCallMessageHandler;
 import com.adrninistrator.usddi.jaxb.generator.DrawIoUSDXmlGen;
+import com.adrninistrator.usddi.logger.DebugLogger;
 import com.adrninistrator.usddi.util.USDDIUtil;
 
 import java.io.BufferedReader;
@@ -61,14 +61,13 @@ public class RunnerGenUmlSequenceDiagram {
             argNum = args.length;
         }
         if (argNum != 1) {
-            System.err.println("请在参数中指定需要生成UML时序图的文本文件，支持指定一个文件，当前参数数量 " + argNum);
+            System.err.println("请在参数中指定需要生成UML时序图的文本文件，支持指定一个文件，当前参数数量: " + argNum);
             return;
         }
 
-        RunnerGenUmlSequenceDiagram runner = new RunnerGenUmlSequenceDiagram();
         String txtFilePath = args[0];
         String outputFilePath = txtFilePath + "-" + USDDIUtil.currentTime() + USDDIConstants.EXT_DRAWIO;
-        runner.generate(txtFilePath, outputFilePath);
+        new RunnerGenUmlSequenceDiagram().generate(txtFilePath, outputFilePath);
     }
 
     // 初始化
@@ -101,17 +100,28 @@ public class RunnerGenUmlSequenceDiagram {
         // 初始化
         init();
 
+        DebugLogger.init();
+
+        boolean success = doGenerate(txtFilePath, outputFilePath);
+
+        DebugLogger.beforeExit();
+
+        return success;
+    }
+
+    public boolean doGenerate(String txtFilePath, String outputFilePath) {
+
         if (!confManager.handlePositionConf() || !confManager.handleStyleConf()) {
             return false;
         }
 
         File txtFile = new File(txtFilePath);
         if (!txtFile.exists()) {
-            System.err.println("指定的文件不存在 " + txtFilePath);
+            System.err.println("指定的文件不存在: " + txtFilePath);
             return false;
         }
         if (!txtFile.isFile()) {
-            System.err.println("指定的不是文件 " + txtFilePath);
+            System.err.println("指定的不是文件: " + txtFilePath);
             return false;
         }
 
@@ -129,6 +139,7 @@ public class RunnerGenUmlSequenceDiagram {
                 if (!lastLineIsEmpty && line.trim().isEmpty()) {
                     // 若上一行非空行，且当前行为空行，代表部分结束
                     if (!endPartHandler.handle()) {
+                        System.err.println("开始处理新的部分，第" + lineNum + "行处理失败: " + line);
                         return false;
                     }
                     // 标记上一行为空行
@@ -159,7 +170,7 @@ public class RunnerGenUmlSequenceDiagram {
 
                     // 添加Lifeline
                     if (!lifelineHandler.addLifeline(line)) {
-                        System.err.println("第" + lineNum + "行lifeline name处理失败: " + line);
+                        System.err.println("添加第" + lineNum + "行生命线名称失败: " + line);
                         return false;
                     }
                 } else {
@@ -177,7 +188,7 @@ public class RunnerGenUmlSequenceDiagram {
             }
 
             // 全部结束
-            if(!endAllHandler.handle()){
+            if (!endAllHandler.handle()) {
                 return false;
             }
 
@@ -204,7 +215,7 @@ public class RunnerGenUmlSequenceDiagram {
      */
     private boolean handleMessage(String line, int lineNum) {
         if (usedVariables.getLifelineInfoList().isEmpty()) {
-            System.err.println("未指定lifeline的name");
+            System.err.println("第" + lineNum + "行未指定生命线的名称: " + line);
             return false;
         }
 
@@ -213,13 +224,13 @@ public class RunnerGenUmlSequenceDiagram {
             handleLifelineNameDone = true;
 
             // 第一次处理消息时，当前处理到的y坐标值加上Lifeline方框高度
-            usedVariables.addCurrentY(confPositionInfo.getLifelineBoxHeight());
+            usedVariables.addCurrentY(this.getClass(), "加上Lifeline方框高度", confPositionInfo.getLifelineBoxHeight());
         }
 
         // 获得Message中的标志
-        MessageInText messageInText = BaseMessageHandler.parseMessage(line);
+        MessageInText messageInText = USDDIUtil.getMessageInText(line);
         if (messageInText == null) {
-            System.err.println("第" + lineNum + "行lifeline name处理失败: " + line);
+            System.err.println("第" + lineNum + "行生命线名称处理失败: " + line);
             return false;
         }
         MessageTypeEnum messageType = messageInText.getMessageType();
@@ -239,7 +250,7 @@ public class RunnerGenUmlSequenceDiagram {
                 break;
         }
         if (!success) {
-            System.err.println("第" + lineNum + "行Message处理失败: " + line);
+            System.err.println("第" + lineNum + "行消息处理失败: " + line);
             return false;
         }
         return true;

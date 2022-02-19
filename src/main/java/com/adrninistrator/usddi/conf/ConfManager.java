@@ -54,18 +54,8 @@ public class ConfManager {
                 return false;
             }
 
-            BigDecimal rspMessageVerticalSpacing = getBigDecimalValue(properties, USDDIConstants.KEY_RSP_MESSAGE_VERTICAL_SPACING, configFilePath, false);
-            if (rspMessageVerticalSpacing == null) {
-                return false;
-            }
-
             BigDecimal selfCallHorizontalWidth = getBigDecimalValue(properties, USDDIConstants.KEY_SELF_CALL_HORIZONTAL_WIDTH, configFilePath, false);
             if (selfCallHorizontalWidth == null) {
-                return false;
-            }
-
-            BigDecimal selfCallVerticalHeight = getBigDecimalValue(properties, USDDIConstants.KEY_SELF_CALL_VERTICAL_HEIGHT, configFilePath, false);
-            if (selfCallVerticalHeight == null) {
                 return false;
             }
 
@@ -79,16 +69,13 @@ public class ConfManager {
             ConfPositionInfo confPositionInfo = ConfPositionInfo.getInstance();
             confPositionInfo.setLifelineCenterHorizontalSpacing(lifelineCenterHorizontalSpacing);
             confPositionInfo.setLifelineBoxWidth(lifelineBoxWidth);
-            confPositionInfo.setLifelineBoxWidthHalf(lifelineBoxWidth.divide(BigDecimal.valueOf(2)));
+            confPositionInfo.setLifelineBoxWidthHalf(USDDIUtil.getHalfBigDecimal(lifelineBoxWidth));
             confPositionInfo.setLifelineBoxHeight(lifelineBoxHeight);
             confPositionInfo.setMessageVerticalSpacing(messageVerticalSpacing);
-            confPositionInfo.setMessageVerticalSpacingHalf(messageVerticalSpacing.divide(BigDecimal.valueOf(2)));
-            confPositionInfo.setRspMessageVerticalSpacing(rspMessageVerticalSpacing);
             confPositionInfo.setSelfCallHorizontalWidth(selfCallHorizontalWidth);
-            confPositionInfo.setSelfCallVerticalHeight(selfCallVerticalHeight);
             confPositionInfo.setActivationWidth(activationWidth);
-            confPositionInfo.setActivationWidthHalf(activationWidth.divide(BigDecimal.valueOf(2)));
-            confPositionInfo.setPartsExtraVerticalSpacing(partsExtraVerticalSpacing);
+            confPositionInfo.setActivationWidthHalf(USDDIUtil.getHalfBigDecimal(activationWidth));
+            confPositionInfo.setPartsExtraVerticalSpacing(partsExtraVerticalSpacing != null ? partsExtraVerticalSpacing : BigDecimal.ZERO);
 
             return true;
         } catch (Exception e) {
@@ -133,8 +120,8 @@ public class ConfManager {
             confStyleInfo.setBoxColorOfActivation(boxColorOfActivation);
             confStyleInfo.setTextFontOfLifeline(textFontOfLifeline);
             confStyleInfo.setTextFontOfMessage(textFontOfMessage);
-            confStyleInfo.setTextSizeOfLifeline(textSizeOfLifeline);
-            confStyleInfo.setTextSizeOfMessage(textSizeOfMessage);
+            confStyleInfo.setTextSizeOfLifeline(textSizeOfLifeline != null ? textSizeOfLifeline : USDDIConstants.DEFAULT_FONT_SIZE);
+            confStyleInfo.setTextSizeOfMessage(textSizeOfMessage != null ? textSizeOfMessage : USDDIConstants.DEFAULT_FONT_SIZE);
             confStyleInfo.setTextColorOfLifeline(textColorOfLifeline);
             confStyleInfo.setTextColorOfMessage(textColorOfMessage);
 
@@ -148,7 +135,7 @@ public class ConfManager {
     private boolean checkBlank(String value, String key, String configFilePath, boolean allowEmpty) {
         if (USDDIUtil.isStrEmpty(value)) {
             if (!allowEmpty) {
-                System.err.println("配置文件中未指定参数 " + configFilePath + " " + key);
+                System.err.println("配置文件中未指定参数: " + configFilePath + " " + key);
             }
             return true;
         }
@@ -164,13 +151,13 @@ public class ConfManager {
         try {
             BigDecimal b = new BigDecimal(strValue);
             if (b.compareTo(BigDecimal.ZERO) <= 0) {
-                System.err.println("配置文件中的参数应大于0 " + configFilePath + " " + key + " " + strValue);
+                System.err.println("配置文件中的参数应大于0: " + configFilePath + " " + key + " " + strValue);
                 return null;
             }
 
             return b;
         } catch (Exception e) {
-            System.err.println("配置文件中的参数不是合法的数字 " + configFilePath + " " + key + " " + strValue);
+            System.err.println("配置文件中的参数不是合法的数字: " + configFilePath + " " + key + " " + strValue);
             return null;
         }
     }
@@ -182,7 +169,7 @@ public class ConfManager {
         }
 
         if (!PATTERN_COLOR.matcher(strValue).matches()) {
-            System.err.println("配置文件中的颜色参数非法，应为“#xxxxxx”的形式 " + configFilePath + " " + key + " " + strValue);
+            System.err.println("配置文件中的颜色参数非法，应为“#xxxxxx”的形式: " + configFilePath + " " + key + " " + strValue);
             return null;
         }
         return strValue;
@@ -205,15 +192,14 @@ public class ConfManager {
         try {
             Integer i = new Integer(strValue);
             if (i <= 0) {
-                System.err.println("配置文件中的参数应大于0 " + configFilePath + " " + key + " " + strValue);
+                System.err.println("配置文件中的参数应大于0: " + configFilePath + " " + key + " " + strValue);
                 return null;
             }
 
             return i;
         } catch (Exception e) {
-            System.err.println("配置文件中的参数不是合法的整数 " + configFilePath + " " + key + " " + strValue);
+            System.err.println("配置文件中的参数不是合法的整数: " + configFilePath + " " + key + " " + strValue);
             return null;
         }
     }
-
 }

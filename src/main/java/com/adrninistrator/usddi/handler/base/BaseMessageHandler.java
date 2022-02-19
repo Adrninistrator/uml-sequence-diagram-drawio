@@ -1,10 +1,15 @@
 package com.adrninistrator.usddi.handler.base;
 
-import com.adrninistrator.usddi.common.USDDIConstants;
-import com.adrninistrator.usddi.dto.*;
+import com.adrninistrator.usddi.dto.activation.ActivationInfo;
+import com.adrninistrator.usddi.dto.lifeline.LifelineInfo;
+import com.adrninistrator.usddi.dto.message.MessageInStack;
+import com.adrninistrator.usddi.dto.message.MessageInText;
+import com.adrninistrator.usddi.dto.message.MessageInfo;
 import com.adrninistrator.usddi.enums.MessageTypeEnum;
+import com.adrninistrator.usddi.logger.DebugLogger;
 import com.adrninistrator.usddi.util.USDDIUtil;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,129 +20,6 @@ import java.util.Map;
  * @description:
  */
 public abstract class BaseMessageHandler extends BaseHandler {
-
-    public static final String[] FLAG_ARRAY = new String[]{
-            USDDIConstants.MESSAGE_REQ_FLAG, USDDIConstants.MESSAGE_RSP_FLAG, USDDIConstants.MESSAGE_ASYNC_FLAG};
-
-    // 获得Message中的标志
-    private static MessageFlagIndex getFlagInMessage(String text) {
-        String usedFlag = null;
-        int minIndex = -1;
-        for (String flag : FLAG_ARRAY) {
-            int index = text.indexOf(flag);
-            if (index == -1) {
-                continue;
-            }
-            if (minIndex == -1 || index < minIndex) {
-                minIndex = index;
-                usedFlag = flag;
-            }
-        }
-
-        if (usedFlag == null) {
-            System.err.println("当前Message中不存在标志");
-            return null;
-        }
-
-        MessageFlagIndex messageFlagIndex = new MessageFlagIndex();
-        messageFlagIndex.setIndex(minIndex);
-        messageFlagIndex.setFlag(usedFlag);
-
-        return messageFlagIndex;
-    }
-
-    /**
-     * 解析当前Message数据
-     *
-     * @param text
-     * @return
-     */
-    public static MessageInText parseMessage(String text) {
-        // 获得Message中的标志
-        MessageFlagIndex messageFlagIndex = BaseMessageHandler.getFlagInMessage(text);
-        if (messageFlagIndex == null) {
-            return null;
-        }
-
-        String startLifelineName = text.substring(0, messageFlagIndex.getIndex()).trim();
-        if (startLifelineName.isEmpty()) {
-            System.err.println("当前Message的起点Lifeline name为空");
-            return null;
-        }
-
-        UsedVariables usedVariables = UsedVariables.getInstance();
-        Map<String, Integer> lifelineDisplayedNameMap = usedVariables.getLifelineDisplayedNameMap();
-        Map<String, Integer> lifelineNameAliasMap = usedVariables.getLifelineNameAliasMap();
-        Integer startLifelineSeq = lifelineDisplayedNameMap.get(startLifelineName);
-        if (startLifelineSeq == null) {
-            startLifelineSeq = lifelineNameAliasMap.get(startLifelineName);
-            if (startLifelineSeq == null) {
-                System.err.println("当前Message起点不在已指定的Lifeline name中");
-                return null;
-            }
-        }
-
-        int messageTextIndex = text.indexOf(USDDIConstants.MESSAGE_TEXT_FLAG);
-        if (messageTextIndex == -1) {
-            System.err.println("当前Message未指定文字");
-            return null;
-        }
-
-        int linkFlagIndex = text.indexOf(USDDIConstants.LINK_FLAG);
-        String link = null;
-
-        String messageText;
-        if (linkFlagIndex != -1) {
-            // 指定了链接
-            messageText = text.substring(messageTextIndex + USDDIConstants.MESSAGE_TEXT_FLAG.length(), linkFlagIndex).trim();
-            link = text.substring(linkFlagIndex + USDDIConstants.LINK_FLAG.length()).trim();
-        } else {
-            // 未指定链接
-            messageText = text.substring(messageTextIndex + USDDIConstants.MESSAGE_TEXT_FLAG.length()).trim();
-        }
-        if (messageText.isEmpty()) {
-            System.err.println("当前Message文字为空");
-            return null;
-        }
-
-        String endLifelineName = text.substring(messageFlagIndex.getIndex() + messageFlagIndex.getFlag().length(), messageTextIndex).trim();
-        if (endLifelineName.isEmpty()) {
-            System.err.println("当前Message的终点Lifeline name为空");
-            return null;
-        }
-        Integer endLifelineSeq = lifelineDisplayedNameMap.get(endLifelineName);
-        if (endLifelineSeq == null) {
-            endLifelineSeq = lifelineNameAliasMap.get(endLifelineName);
-            if (endLifelineSeq == null) {
-                System.err.println("当前Message终点不在已指定的Lifeline name中");
-                return null;
-            }
-        }
-
-        MessageInText messageInText = new MessageInText();
-        if (USDDIConstants.MESSAGE_RSP_FLAG.equals(messageFlagIndex.getFlag())) {
-            // 对于返回Message，左边是终点，右边是起点
-            messageInText.setStartLifelineSeq(endLifelineSeq);
-            messageInText.setEndLifelineSeq(startLifelineSeq);
-        } else {
-            messageInText.setStartLifelineSeq(startLifelineSeq);
-            messageInText.setEndLifelineSeq(endLifelineSeq);
-        }
-        messageInText.setMessageText(messageText);
-        if (USDDIConstants.MESSAGE_REQ_FLAG.equals(messageFlagIndex.getFlag())) {
-            messageInText.setMessageType(startLifelineSeq.equals(endLifelineSeq) ? MessageTypeEnum.MTE_SELF : MessageTypeEnum.MTE_REQ);
-        } else if (USDDIConstants.MESSAGE_RSP_FLAG.equals(messageFlagIndex.getFlag())) {
-            messageInText.setMessageType(MessageTypeEnum.MTE_RSP);
-        } else if (USDDIConstants.MESSAGE_ASYNC_FLAG.equals(messageFlagIndex.getFlag())) {
-            messageInText.setMessageType(MessageTypeEnum.MTE_ASYNC);
-        }
-
-        if (!USDDIUtil.isStrEmpty(link)) {
-            messageInText.setLink(link);
-        }
-
-        return messageInText;
-    }
 
     // 对Message进行处理
     public abstract boolean handleMessage(MessageInText messageInText);
@@ -153,8 +35,7 @@ public abstract class BaseMessageHandler extends BaseHandler {
             // 当栈非空时，当前Message只能以栈顶的终点Lifeline作为起点
             MessageInStack topMessage = messageStack.peek();
             if (!messageInText.getStartLifelineSeq().equals(topMessage.getEndLifelineSeq())) {
-                System.err.println("当前请求的起点与上次请求的终点不同: " + messageInText.getStartLifelineSeq() +
-                        USDDIConstants.MESSAGE_REQ_FLAG + topMessage.getEndLifelineSeq());
+                System.err.println("当前消息的起点生命线序号 " + messageInText.getStartLifelineSeq() + " 与上一条消息的终点生命线序号 " + topMessage.getEndLifelineSeq() + " 不同");
                 return false;
             }
         }
@@ -177,7 +58,7 @@ public abstract class BaseMessageHandler extends BaseHandler {
             } else {
                 // 最初的起点Lifeline非空时，检查是否与当前Message起点相同
                 if (!usedVariables.getFirstStartLifelineSeq().equals(messageInText.getStartLifelineSeq())) {
-                    System.err.println("需要以最初的起点Lifeline作为当前Message的起点");
+                    System.err.println("前面的同步请求消息及对应的返回消息已处理完毕，当前消息需要以最初的起点生命线作为起点，对应生命线序号: " + DebugLogger.getLifelineSeq(usedVariables.getFirstStartLifelineSeq()));
                     return false;
                 }
             }
@@ -189,20 +70,43 @@ public abstract class BaseMessageHandler extends BaseHandler {
      * 处理Message位置
      *
      * @param messageInfo
-     * @param messageInText
      */
-    protected void setMessagePosition(MessageInfo messageInfo, MessageInText messageInText) {
-        // y坐标为当前处理到的y坐标
-        messageInfo.setStartY(usedVariables.getCurrentY());
-        messageInfo.setEndY(usedVariables.getCurrentY());
+    protected void handleMessagePosition(MessageInfo messageInfo) {
+        DebugLogger.logMessageInfo(this.getClass(), "handleMessagePosition", messageInfo);
 
+        // 处理消息的y坐标
+        handleMessageY(messageInfo);
+
+        // 处理消息的x坐标
+        handleMessageX(messageInfo);
+    }
+
+    // 处理消息的y坐标
+    private void handleMessageY(MessageInfo messageInfo) {
+        // 获取消息的上y
+        BigDecimal topY = getMessageTopY(messageInfo);
+        messageInfo.setTopY(topY);
+
+        // 消息的下y，等于上y加消息高度
+        messageInfo.setBottomY(topY.add(messageInfo.getHeight()));
+
+        // 消息的中y，等于上y加消息高度的一半
+        messageInfo.setMiddleY(topY.add(USDDIUtil.getHalfBigDecimal(messageInfo.getHeight())));
+
+        DebugLogger.log(this.getClass(), "handleMessageY", "topY:" + topY.toPlainString(),
+                "middleY:" + messageInfo.getMiddleY().toPlainString(),
+                "bottomY:" + messageInfo.getBottomY().toPlainString());
+    }
+
+    // 处理消息的x坐标
+    private void handleMessageX(MessageInfo messageInfo) {
         List<LifelineInfo> lifelineInfoList = usedVariables.getLifelineInfoList();
         // 获取起点与终点Lifeline
-        LifelineInfo startLifelineInfo = lifelineInfoList.get(messageInText.getStartLifelineSeq());
-        LifelineInfo endLifelineInfo = lifelineInfoList.get(messageInText.getEndLifelineSeq());
+        LifelineInfo startLifelineInfo = lifelineInfoList.get(messageInfo.getStartLifelineSeq());
+        LifelineInfo endLifelineInfo = lifelineInfoList.get(messageInfo.getEndLifelineSeq());
 
-        if (messageInText.getStartLifelineSeq() < messageInText.getEndLifelineSeq()) {
-            // 起点在终点的左边
+        if (messageInfo.getStartLifelineSeq() <= messageInfo.getEndLifelineSeq()) {
+            // 起点在终点的左边（或自调用消息）
             // 起点x坐标为起点Lifeline中间点的x坐标加上配置中指定的Activation宽度的一半
             messageInfo.setStartX(startLifelineInfo.getCenterX().add(confPositionInfo.getActivationWidthHalf()));
             // 终点x坐标为终点Lifeline中间点的x坐标减去配置中指定的Activation宽度的一半
@@ -214,24 +118,105 @@ public abstract class BaseMessageHandler extends BaseHandler {
             // 终点x坐标为终点Lifeline中间点的x坐标加上配置中指定的Activation宽度的一半
             messageInfo.setEndX(endLifelineInfo.getCenterX().add(confPositionInfo.getActivationWidthHalf()));
         }
+
+        if (messageInfo.getMessageType() == MessageTypeEnum.MTE_SELF) {
+            // 对于自调用消息，起点x坐标对应左x坐标，终点x坐标对应右x坐标
+            // 终点x等于起点x加上自调用消息宽度
+            messageInfo.setEndX(messageInfo.getStartX().add(confPositionInfo.getSelfCallHorizontalWidth()));
+        }
+
+        DebugLogger.log(this.getClass(), "handleMessageX", "startX:" + messageInfo.getStartX().toPlainString(),
+                "endX:" + messageInfo.getEndX().toPlainString());
+    }
+
+    // 获取消息的上y
+    private BigDecimal getMessageTopY(MessageInfo messageInfo) {
+        if (messageInfoList.isEmpty()) {
+            // 当前消息为第一条消息
+            // 上y设置为当前y坐标加上消息（及与生命线之间）垂直间距
+            DebugLogger.log(this.getClass(), "getMessageTopY", "first message of all");
+            return usedVariables.getCurrentY().add(confPositionInfo.getMessageVerticalSpacing());
+        }
+
+        // 获取上一条消息
+        MessageInfo lastMessageInfo = getLastMessageInfo();
+        // 获取上一条消息的下y
+        BigDecimal lastMessageBottomY = USDDIUtil.getLastMessageBottomY(lastMessageInfo);
+
+        if (lastMessageInfo.getPartSeq() != messageInfo.getPartSeq()) {
+            // 当前消息与上一条消息不属于同一部分，即当前消息为当前部分的第一条消息
+            DebugLogger.log(this.getClass(), "getMessageTopY", "first message of part", String.valueOf(messageInfo.getPartSeq()));
+
+            // 当前消息上y应等于：上一条消息的下y，加上“消息（及与生命线之间）垂直间距”，再加上“两个部分之间的额外垂直间距”
+            return lastMessageBottomY.add(confPositionInfo.getMessageVerticalSpacing()).add(confPositionInfo.getPartsExtraVerticalSpacing());
+        }
+
+        // 当前消息不是当前部分的第一条消息
+        if (checkTwoMessageXNoCoincide(messageInfo, lastMessageInfo)) {
+            // 当前消息与上一条消息x坐标没有重合
+            // 当前消息的上y等于：上一条消息的下y
+            DebugLogger.log(this.getClass(), "getMessageTopY", "not first message, x not coincide", String.valueOf(messageInfo.getPartSeq()));
+            return lastMessageBottomY;
+        }
+
+        // 当前消息与上一条消息x坐标有重合
+        // 当前消息的上y等于：上一条消息的下y，再加上“消息（及与生命线之间）垂直间距”
+        DebugLogger.log(this.getClass(), "getMessageTopY", "not first message, x coincide", String.valueOf(messageInfo.getPartSeq()));
+        return lastMessageBottomY.add(confPositionInfo.getMessageVerticalSpacing());
+    }
+
+    /**
+     * 判断当前消息与上一条消息在x坐标是否没有重合
+     *
+     * @param messageInfo
+     * @param lastMessageInfo
+     * @return true: 没有重合，false: 有重合
+     */
+    private boolean checkTwoMessageXNoCoincide(MessageInfo messageInfo, MessageInfo lastMessageInfo) {
+        return checkMessageInRightPosition(messageInfo, lastMessageInfo) || checkMessageInRightPosition(lastMessageInfo, messageInfo);
+    }
+
+    /**
+     * 判断消息1的起点与终点的生命线序号，是否都大于等于消息2的起点与终点的生命线序号，即消息1整个在消息2的右边
+     *
+     * @param messageInfo1
+     * @param messageInfo2
+     * @return
+     */
+    private boolean checkMessageInRightPosition(MessageInfo messageInfo1, MessageInfo messageInfo2) {
+        // 对于自调用消息，在比较时需要将终点序号设置为起点序号加1
+        int messageInfo1EndSeq = messageInfo1.getMessageType() == MessageTypeEnum.MTE_SELF ? messageInfo1.getStartLifelineSeq() + 1 : messageInfo1.getEndLifelineSeq();
+        int messageInfo2EndSeq = messageInfo2.getMessageType() == MessageTypeEnum.MTE_SELF ? messageInfo2.getStartLifelineSeq() + 1 : messageInfo2.getEndLifelineSeq();
+
+        int messageInfo2MaxSeq = Math.max(messageInfo2.getStartLifelineSeq(), messageInfo2EndSeq);
+        return messageInfo1.getStartLifelineSeq() >= messageInfo2MaxSeq && messageInfo1EndSeq >= messageInfo2MaxSeq;
     }
 
     /**
      * 尝试为起点Lifeline增加Activation
      *
-     * @param messageInText
+     * @param messageInfo
      */
-    protected void tryAddActivation4StartLifeline(MessageInText messageInText) {
+    protected void tryAddActivation4StartLifeline(MessageInfo messageInfo) {
         Map<Integer, List<ActivationInfo>> activationMap = usedVariables.getActivationMap();
 
         // 在记录Activation的Map中，起点Lifeline的Activation List中，判断最后一个Activation
-        List<ActivationInfo> startActivationInfoList = activationMap.computeIfAbsent(messageInText.getStartLifelineSeq(), k -> new ArrayList<>());
-        if (startActivationInfoList.isEmpty() || startActivationInfoList.get(startActivationInfoList.size() - 1).getEndY() != null) {
-            // 若Activation不存在，或者最后一个Activation的结束y坐标已设置，则增加一个Activation，起始y坐标为当前处理到的y坐标
+        List<ActivationInfo> startActivationInfoList = activationMap.computeIfAbsent(messageInfo.getStartLifelineSeq(), k -> new ArrayList<>());
+        if (startActivationInfoList.isEmpty() || startActivationInfoList.get(startActivationInfoList.size() - 1).getBottomY() != null) {
+            // 若Activation不存在，或者最后一个Activation的结束y坐标已设置，则增加一个Activation
             ActivationInfo startActivationInfo = new ActivationInfo();
             startActivationInfoList.add(startActivationInfo);
-            startActivationInfo.setStartY(usedVariables.getCurrentY());
-            startActivationInfo.setEndY(null);
+
+            if (messageInfo.getMessageType() != MessageTypeEnum.MTE_SELF) {
+                // 非自调用消息，激活起始y坐标为消息的中y
+                startActivationInfo.setTopY(messageInfo.getMiddleY());
+            } else {
+                // 自调用消息，激活起始y坐标为消息的上y
+                startActivationInfo.setTopY(messageInfo.getTopY());
+            }
+
+            startActivationInfo.setBottomY(null);
+            DebugLogger.logActivation(this.getClass(), "addActivation4StartLifeline", messageInfo.getStartLifelineSeq(), startActivationInfo);
         }
     }
 }

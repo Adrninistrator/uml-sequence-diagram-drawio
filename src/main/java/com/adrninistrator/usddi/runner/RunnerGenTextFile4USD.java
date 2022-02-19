@@ -1,7 +1,7 @@
 package com.adrninistrator.usddi.runner;
 
 import com.adrninistrator.usddi.common.USDDIConstants;
-import com.adrninistrator.usddi.dto.LifelineName;
+import com.adrninistrator.usddi.dto.lifeline.LifelineName;
 import com.adrninistrator.usddi.enums.MessageTypeEnum;
 import com.adrninistrator.usddi.util.USDDIUtil;
 

@@ -1,4 +1,4 @@
-package com.adrninistrator.usddi.dto;
+package com.adrninistrator.usddi.dto.message;
 
 /**
  * @author adrninistrator

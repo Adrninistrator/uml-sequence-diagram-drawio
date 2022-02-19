@@ -3,6 +3,7 @@ package test.usddi.gen_text_file;
 import com.adrninistrator.usddi.common.USDDIConstants;
 import com.adrninistrator.usddi.runner.RunnerGenTextFile4USD;
 import com.adrninistrator.usddi.runner.RunnerGenUmlSequenceDiagram;
+import com.adrninistrator.usddi.util.USDDIUtil;
 
 import java.io.BufferedWriter;
 
@@ -22,7 +23,7 @@ public class TestGenTextFile4USD {
     }
 
     private static void generate(String description, String descriptionLink) {
-        String filePath = "test-" + System.currentTimeMillis() + ".txt";
+        String filePath = "test-" + USDDIUtil.currentTime() + ".txt";
         System.out.println(filePath);
 
         RunnerGenTextFile4USD runnerGenTextFile4USD = new RunnerGenTextFile4USD();
