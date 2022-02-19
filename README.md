@@ -90,7 +90,7 @@ sh run.sh [文本文件路径]
 - Gradle
 
 ```
-testImplementation 'com.github.adrninistrator:uml-sequence-diagram-drawio:0.0.5'
+testImplementation 'com.github.adrninistrator:uml-sequence-diagram-drawio:0.1.0'
 ```
 
 - Maven
@@ -99,7 +99,7 @@ testImplementation 'com.github.adrninistrator:uml-sequence-diagram-drawio:0.0.5'
 <dependency>
   <groupId>com.github.adrninistrator</groupId>
   <artifactId>uml-sequence-diagram-drawio</artifactId>
-  <version>0.0.5</version>
+  <version>0.1.0</version>
   <type>provided</type>
 </dependency>
 ```
