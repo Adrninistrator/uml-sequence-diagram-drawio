@@ -132,6 +132,12 @@ public class RunnerGenUmlSequenceDiagram {
             String line;
             while ((line = br.readLine()) != null) {
                 lineNum++;
+
+                if (lineNum == 1 && line.startsWith("\uFEFF")) {
+                    System.err.println("当前文件编码为UTF-8-BOM，请修改为UTF-8无BOM");
+                    return false;
+                }
+
                 if (line.startsWith(USDDIConstants.COMMENT_FLAG)) {
                     continue;
                 }
