@@ -18,6 +18,10 @@
 
 支持根据消息文本计算所需高度，不再需要人工指定统一固定高度
 
+- 0.1.1
+
+检查输入文件编码是否为UTF-8-BOM
+
 # 3. 示例
 
 以下为本工具生成的draw.io格式的UML时序图：
@@ -90,7 +94,7 @@ sh run.sh [文本文件路径]
 - Gradle
 
 ```
-testImplementation 'com.github.adrninistrator:uml-sequence-diagram-drawio:0.1.0'
+testImplementation 'com.github.adrninistrator:uml-sequence-diagram-drawio:0.1.1'
 ```
 
 - Maven
@@ -99,7 +103,7 @@ testImplementation 'com.github.adrninistrator:uml-sequence-diagram-drawio:0.1.0'
 <dependency>
   <groupId>com.github.adrninistrator</groupId>
   <artifactId>uml-sequence-diagram-drawio</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
   <type>provided</type>
 </dependency>
 ```
