@@ -1,0 +1,69 @@
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+apply from: 'build.gradle'
+
+task sourcesJar(type: Jar) {
+    doFirst {
+        archiveClassifier.set('sources')
+        from sourceSets.main.allJava
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId project.group
+            artifactId project.name
+            version "${version}"
+            from components.java
+            artifact sourcesJar
+
+            pom {
+                name = "uml-sequence-diagram-drawio"
+                description = "Generate draw.io UML Sequence Diagram from text file."
+                url = "https://github.com/Adrninistrator/uml-sequence-diagram-drawio"
+                licenses {
+                    license {
+                        name = "The Apache License, Version 2.0"
+                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                    }
+                }
+                developers {
+                    developer {
+                        id = "Adrninistrator"
+                        name = "zhengyiee"
+                        email = "zhengyiee@qq.com"
+                    }
+                }
+                scm {
+                    connection = "scm:git:https://github.com/Adrninistrator/uml-sequence-diagram-drawio.git"
+                    developerConnection = "scm:git:https://github.com/Adrninistrator/uml-sequence-diagram-drawio.git"
+                    url = "https://github.com/Adrninistrator/uml-sequence-diagram-drawio"
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name 'sonatypeRepository'
+            url 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+            credentials {
+                username = "${NEXUS_USERNAME}"
+                password = "${NEXUS_PASSWORD}"
+            }
+        }
+        maven {
+            name = 'sonatypeSnapshotRepository'
+            url = 'https://oss.sonatype.org/content/repositories/snapshots/'
+            credentials {
+                username = "${NEXUS_USERNAME}"
+                password = "${NEXUS_PASSWORD}"
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}

@@ -22,6 +22,10 @@
 
 检查输入文件编码是否为UTF-8-BOM
 
+- 0.1.2
+
+自调用消息背景色设置为透明
+
 # 3. 示例
 
 以下为本工具生成的draw.io格式的UML时序图：
@@ -96,7 +100,7 @@ sh run.sh [文本文件路径]
 - Gradle
 
 ```
-testImplementation 'com.github.adrninistrator:uml-sequence-diagram-drawio:0.1.1'
+testImplementation 'com.github.adrninistrator:uml-sequence-diagram-drawio:0.1.2'
 ```
 
 - Maven
@@ -105,7 +109,7 @@ testImplementation 'com.github.adrninistrator:uml-sequence-diagram-drawio:0.1.1'
 <dependency>
   <groupId>com.github.adrninistrator</groupId>
   <artifactId>uml-sequence-diagram-drawio</artifactId>
-  <version>0.1.1</version>
+  <version>0.1.2</version>
   <type>provided</type>
 </dependency>
 ```

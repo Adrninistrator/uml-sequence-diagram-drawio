@@ -443,6 +443,7 @@ public class DrawIoUSDXmlGen {
         map.put("rounded", "0");
         map.put("endFill", "1");
         map.put("align", "left");
+        map.put("labelBackgroundColor", "none");
 
         return getStyleStringFromMap(map);
     }
