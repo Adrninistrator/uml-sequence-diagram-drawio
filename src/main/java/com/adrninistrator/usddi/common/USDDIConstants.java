@@ -14,23 +14,17 @@ public class USDDIConstants {
     public static final String COMMENT_FLAG = "#";
 
     public static final String LIFELINE_TITLE_FLAG = "@";
-
     public static final String LIFELINE_ALIAS_FLAG = " as ";
 
     public static final String MESSAGE_REQ_FLAG = "=>";
-
     public static final String MESSAGE_RSP_FLAG = "<=";
-
     public static final String MESSAGE_ASYNC_FLAG = "->";
-
     public static final String MESSAGE_TEXT_FLAG = ":";
 
     public static final String LINK_FLAG = "~";
 
     public static final String CONF_DIR = "~usddi_conf";
-
     public static final String CONF_FILE_POSITION = "position.properties";
-
     public static final String CONF_FILE_STYLE = "style.properties";
 
     public static final String NEW_LINE = "\n";
@@ -41,10 +35,6 @@ public class USDDIConstants {
 
     // 生命线中间点的水平间距
     public static final String KEY_LIFELINE_CENTER_HORIZONTAL_SPACING = "lifeline.center.horizontal.spacing";
-    // 生命线的方框宽度
-    public static final String KEY_LIFELINE_BOX_WIDTH = "lifeline.box.width";
-    // 生命线的方框高度
-    public static final String KEY_LIFELINE_BOX_HEIGHT = "lifeline.box.height";
     // 消息（及与生命线之间）垂直间距
     public static final String KEY_MESSAGE_VERTICAL_SPACING = "message.vertical.spacing";
     // 自调用消息的水平宽度
@@ -94,8 +84,35 @@ public class USDDIConstants {
     // 描述的高度
     public static final BigDecimal DESCRIPTION_HEIGHT = BigDecimal.valueOf(20);
 
-    // 文字大小默认值-11
-    public static final int DEFAULT_FONT_SIZE = 11;
+    // 文字默认字体-宋体
+    public static final String DEFAULT_FONT_NAME = "宋体";
+    // 文字默认大小-12
+    public static final int DEFAULT_FONT_SIZE = 12;
+    // 文字默认字体-颜色
+    public static final String DEFAULT_FONT_COLOR = "#000000";
+
+    // 字体最小大小-12
+    public static final int ALLOWED_MIN_FONT_SIZE = 12;
+
+    // Lifeline方框宽度最大允许占用生命线中间点的水平间距的比例
+    public static final BigDecimal LIFELINE_BOX_MAX_WIDTH_PERCENTAGE_LIFELINE = BigDecimal.valueOf(0.6D);
+    // Lifeline方框宽度最大允许的固定值
+
+    // Lifeline方框高度最小允许占用方框中文字实际高度的倍数
+    public static final BigDecimal LIFELINE_BOX_MIN_HEIGHT_MULTIPLE_TEXT = BigDecimal.valueOf(2);
+    // Lifeline方框高度最小允许的值，用于增加的值
+    public static final BigDecimal LIFELINE_BOX_MIN_HEIGHT_ADD = BigDecimal.valueOf(30);
+
+    // Lifeline方框宽度与高度的倍数
+    public static final BigDecimal LIFELINE_BOX_WIDTH_HEIGHT_MULTIPLE = BigDecimal.valueOf(2);
+
+    // Lifeline方框与文字的间距，横向
+    public static final BigDecimal LIFELINE_BOX_BORDER_TEXT_SPACE_HORIZONTAL = BigDecimal.valueOf(2);
+
+    // 消息宽度最大允许占用开始与结束的生命线之间水平间距的比例
+    public static final BigDecimal MESSAGE_MAX_WIDTH_PERCENTAGE_LIFELINE = BigDecimal.valueOf(0.7D);
+    // 消息宽度最大允许的固定值
+    public static final BigDecimal MESSAGE_MAX_WIDTH_FIXED = BigDecimal.valueOf(400);
 
     private USDDIConstants() {
         throw new IllegalStateException("illegal");

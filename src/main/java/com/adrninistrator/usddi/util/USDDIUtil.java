@@ -1,7 +1,6 @@
 package com.adrninistrator.usddi.util;
 
 import com.adrninistrator.usddi.common.USDDIConstants;
-import com.adrninistrator.usddi.conf.ConfStyleInfo;
 import com.adrninistrator.usddi.dto.message.MessageFlagIndex;
 import com.adrninistrator.usddi.dto.message.MessageInText;
 import com.adrninistrator.usddi.dto.message.MessageInfo;
@@ -30,9 +29,9 @@ public class USDDIUtil {
     public static final String[] FLAG_ARRAY = new String[]{
             USDDIConstants.MESSAGE_REQ_FLAG, USDDIConstants.MESSAGE_RSP_FLAG, USDDIConstants.MESSAGE_ASYNC_FLAG};
 
-    private static ClassLoader CLASS_LOADER = USDDIUtil.class.getClassLoader();
+    private static final ClassLoader CLASS_LOADER = USDDIUtil.class.getClassLoader();
 
-    private static String CLASS_PATH = USDDIUtil.class.getResource("/").getPath();
+    private static final String CLASS_PATH = USDDIUtil.class.getResource("/").getPath();
 
     public static boolean isStrEmpty(String str) {
         return str == null || str.trim().isEmpty();
@@ -56,31 +55,40 @@ public class USDDIUtil {
         return sdf.format(new Date());
     }
 
+    /**
+     * 获得BigDecimal的一半
+     *
+     * @param bigDecimal
+     * @return
+     */
     public static BigDecimal getHalfBigDecimal(BigDecimal bigDecimal) {
         return bigDecimal.divide(BigDecimal.valueOf(2.0D), 2, RoundingMode.HALF_UP);
     }
 
-    public static MessageInfo getMessageInfo(MessageInText messageInText, int partSeq) {
-        MessageInfo messageInfo = new MessageInfo();
-        messageInfo.setMessageText(messageInText.getMessageText());
-        messageInfo.setStartLifelineSeq(messageInText.getStartLifelineSeq());
-        messageInfo.setEndLifelineSeq(messageInText.getEndLifelineSeq());
-        messageInfo.setLink(messageInText.getLink());
-        messageInfo.setPartSeq(partSeq);
+    /**
+     * 获得最小的BigDecimal
+     *
+     * @param bigDecimal1
+     * @param bigDecimal2
+     * @return
+     */
+    public static BigDecimal minBigDecimal(BigDecimal bigDecimal1, BigDecimal bigDecimal2) {
+        return bigDecimal1.compareTo(bigDecimal2) < 0 ? bigDecimal1 : bigDecimal2;
+    }
 
-        /*
-            获得消息的高度：
-            文字大小 * 文字行数 + (文字行数 - 1) * 2
-         */
-        String[] array = messageInfo.getMessageText().split(USDDIConstants.HTML_NEW_LINE);
-        long rowNum = array.length;
-        messageInfo.setHeight(BigDecimal.valueOf(ConfStyleInfo.getInstance().getTextSizeOfMessage() * rowNum + (rowNum - 1) * 2));
-
-        return messageInfo;
+    /**
+     * 获得最大的BigDecimal
+     *
+     * @param bigDecimal1
+     * @param bigDecimal2
+     * @return
+     */
+    public static BigDecimal maxBigDecimal(BigDecimal bigDecimal1, BigDecimal bigDecimal2) {
+        return bigDecimal1.compareTo(bigDecimal2) > 0 ? bigDecimal1 : bigDecimal2;
     }
 
     // 获得Message中的标志
-    public static MessageFlagIndex getFlagInMessage(String text) {
+    public static MessageFlagIndex genFlagInMessage(String text) {
         String usedFlag = null;
         int minIndex = -1;
         for (String flag : FLAG_ARRAY) {
@@ -110,13 +118,14 @@ public class USDDIUtil {
      * 解析当前Message数据
      *
      * @param text
+     * @param usedVariables
      * @return
      */
-    public static MessageInText getMessageInText(String text) {
+    public static MessageInText genMessageInText(String text, UsedVariables usedVariables) {
         DebugLogger.log(BaseMessageHandler.class, "parseMessage", text);
 
         // 获得Message中的标志
-        MessageFlagIndex messageFlagIndex = getFlagInMessage(text);
+        MessageFlagIndex messageFlagIndex = genFlagInMessage(text);
         if (messageFlagIndex == null) {
             return null;
         }
@@ -127,7 +136,6 @@ public class USDDIUtil {
             return null;
         }
 
-        UsedVariables usedVariables = UsedVariables.getInstance();
         Map<String, Integer> lifelineDisplayedNameMap = usedVariables.getLifelineDisplayedNameMap();
         Map<String, Integer> lifelineNameAliasMap = usedVariables.getLifelineNameAliasMap();
         Integer startLifelineSeq = lifelineDisplayedNameMap.get(startLifelineName);
@@ -209,12 +217,12 @@ public class USDDIUtil {
      */
     public static BigDecimal getLastMessageBottomY(MessageInfo lastMessageInfo) {
         BigDecimal lastMessageBottomY = lastMessageInfo.getBottomY();
-        if (lastMessageInfo.getMessageType() == MessageTypeEnum.MTE_ASYNC) {
-            // 异步消息
-            if (lastMessageInfo.getAsyncMessageEndActivationBottomY() != null && lastMessageInfo.getAsyncMessageEndActivationBottomY().compareTo(lastMessageBottomY) > 0) {
-                // 若终点对应的激活下y非空，且比异步消息下y值要大时，则使用该终点对应的激活下y
-                return lastMessageInfo.getAsyncMessageEndActivationBottomY();
-            }
+        // 处理异步消息
+        if (lastMessageInfo.getMessageType() == MessageTypeEnum.MTE_ASYNC &&
+                lastMessageInfo.getAsyncMessageEndActivationBottomY() != null &&
+                lastMessageInfo.getAsyncMessageEndActivationBottomY().compareTo(lastMessageBottomY) > 0) {
+            // 若终点对应的激活下y非空，且比异步消息下y值要大时，则使用该终点对应的激活下y
+            return lastMessageInfo.getAsyncMessageEndActivationBottomY();
         }
 
         return lastMessageBottomY;

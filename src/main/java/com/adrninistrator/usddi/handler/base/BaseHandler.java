@@ -1,11 +1,18 @@
 package com.adrninistrator.usddi.handler.base;
 
+import com.adrninistrator.usddi.common.USDDIConstants;
 import com.adrninistrator.usddi.conf.ConfPositionInfo;
+import com.adrninistrator.usddi.conf.ConfStyleInfo;
 import com.adrninistrator.usddi.dto.activation.ActivationInfo;
+import com.adrninistrator.usddi.dto.html.HtmlFormatResult;
 import com.adrninistrator.usddi.dto.message.MessageInStack;
+import com.adrninistrator.usddi.dto.message.MessageInText;
 import com.adrninistrator.usddi.dto.message.MessageInfo;
 import com.adrninistrator.usddi.dto.variables.UsedVariables;
+import com.adrninistrator.usddi.exceptions.HtmlFormatException;
+import com.adrninistrator.usddi.html.HtmlHandler;
 import com.adrninistrator.usddi.logger.DebugLogger;
+import com.adrninistrator.usddi.util.USDDIUtil;
 
 import java.math.BigDecimal;
 import java.util.Deque;
@@ -19,13 +26,21 @@ import java.util.Map;
  */
 public abstract class BaseHandler {
 
-    protected UsedVariables usedVariables = UsedVariables.getInstance();
+    protected final UsedVariables usedVariables;
+    protected final ConfPositionInfo confPositionInfo;
+    protected final ConfStyleInfo confStyleInfo;
+    protected final HtmlHandler htmlHandler;
+    protected final List<MessageInfo> messageInfoList;
+    protected final Deque<MessageInStack> messageStack;
 
-    protected ConfPositionInfo confPositionInfo = ConfPositionInfo.getInstance();
-
-    protected List<MessageInfo> messageInfoList = usedVariables.getMessageInfoList();
-
-    protected Deque<MessageInStack> messageStack = usedVariables.getMessageStack();
+    protected BaseHandler(UsedVariables usedVariables, ConfPositionInfo confPositionInfo, ConfStyleInfo confStyleInfo, HtmlHandler htmlHandler) {
+        this.usedVariables = usedVariables;
+        this.confPositionInfo = confPositionInfo;
+        this.confStyleInfo = confStyleInfo;
+        this.htmlHandler = htmlHandler;
+        messageInfoList = usedVariables.getMessageInfoList();
+        messageStack = usedVariables.getMessageStack();
+    }
 
     /**
      * 为当前Message的起点或终点对应的Lifeline的Activation设置结束y坐标
@@ -63,5 +78,42 @@ public abstract class BaseHandler {
         }
 
         return messageInfoList.get(messageInfoList.size() - 1);
+    }
+
+    /**
+     * 生成消息信息
+     *
+     * @param messageInText
+     * @param partSeq
+     * @return
+     */
+    protected MessageInfo genMessageInfo(MessageInText messageInText, int partSeq) throws HtmlFormatException {
+        // 获得消息起点与终点所在的Lifeline的中间点距离
+        int lifelineSeqDistance = messageInText.getEndLifelineSeq() - messageInText.getStartLifelineSeq();
+        if (lifelineSeqDistance == 0) {
+            // 自调用消息
+            lifelineSeqDistance = 1;
+        } else if (lifelineSeqDistance < 0) {
+            // 返回消息
+            lifelineSeqDistance = -lifelineSeqDistance;
+        }
+        BigDecimal lifelineSpace = confPositionInfo.getLifelineCenterHorizontalSpacing().multiply(BigDecimal.valueOf(lifelineSeqDistance));
+        // 获得消息允许的最大宽度
+        BigDecimal messageMaxWidth = USDDIUtil.minBigDecimal(lifelineSpace.multiply(USDDIConstants.MESSAGE_MAX_WIDTH_PERCENTAGE_LIFELINE),
+                USDDIConstants.MESSAGE_MAX_WIDTH_FIXED);
+
+        // 对消息文本进行格式化
+        HtmlFormatResult htmlFormatResult = htmlHandler.formatHtml(messageInText.getMessageText(), messageMaxWidth, confStyleInfo.getTextFontOfLifeline(),
+                confStyleInfo.getTextSizeOfLifeline());
+
+        MessageInfo messageInfo = new MessageInfo();
+        messageInfo.setStartLifelineSeq(messageInText.getStartLifelineSeq());
+        messageInfo.setEndLifelineSeq(messageInText.getEndLifelineSeq());
+        messageInfo.setLink(messageInText.getLink());
+        messageInfo.setPartSeq(partSeq);
+        messageInfo.setMessageText(htmlFormatResult.getFormattedHtmlText());
+        messageInfo.setHeight(BigDecimal.valueOf(htmlFormatResult.getHeight()));
+
+        return messageInfo;
     }
 }

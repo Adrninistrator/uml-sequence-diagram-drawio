@@ -1,10 +1,13 @@
 package com.adrninistrator.usddi.handler;
 
+import com.adrninistrator.usddi.conf.ConfPositionInfo;
 import com.adrninistrator.usddi.conf.ConfStyleInfo;
 import com.adrninistrator.usddi.dto.lifeline.LifelineInfo;
 import com.adrninistrator.usddi.dto.message.MessageInfo;
+import com.adrninistrator.usddi.dto.variables.UsedVariables;
 import com.adrninistrator.usddi.enums.MessageTypeEnum;
 import com.adrninistrator.usddi.handler.base.BaseHandler;
+import com.adrninistrator.usddi.html.HtmlHandler;
 import com.adrninistrator.usddi.logger.DebugLogger;
 import com.adrninistrator.usddi.util.USDDIUtil;
 
@@ -18,6 +21,10 @@ import java.util.List;
  */
 public class EndAllHandler extends BaseHandler {
 
+    public EndAllHandler(UsedVariables usedVariables, ConfPositionInfo confPositionInfo, ConfStyleInfo confStyleInfo, HtmlHandler htmlHandler) {
+        super(usedVariables, confPositionInfo, confStyleInfo, htmlHandler);
+    }
+
     public boolean handle() {
         DebugLogger.log(this.getClass(), "end all");
         // 完全处理结束时的处理
@@ -30,7 +37,7 @@ public class EndAllHandler extends BaseHandler {
 
         // 设置整个区域的宽度，等于最后一个生命线中点X坐标，加上生命线宽度的一半
         LifelineInfo lastLifeline = lifelineInfoList.get(lifelineInfoList.size() - 1);
-        usedVariables.setTotalWidth(lastLifeline.getCenterX().add(confPositionInfo.getLifelineBoxWidthHalf()));
+        usedVariables.setTotalWidth(lastLifeline.getCenterX().add(usedVariables.getLifelineBoxActualWidthHalf()));
 
         // 获取上一条消息
         MessageInfo lastMessageInfo = getLastMessageInfo();
@@ -40,9 +47,8 @@ public class EndAllHandler extends BaseHandler {
             设置Lifeline的总高度，等于最后一条消息的y坐标加上Message（及与Lifeline之间）垂直间距，减去Lifeline的起始y坐标
             加上Message（及与Lifeline之间）垂直间距，是为了使最后一个消息与整个生命线下y之间留出距离
          */
-        usedVariables.setLifelineHeight(lastMessageBottomY.add(confPositionInfo.getMessageVerticalSpacing()).subtract(usedVariables.getLifelineStartY()));
+        usedVariables.setLifelineTotalHeight(lastMessageBottomY.add(confPositionInfo.getMessageVerticalSpacing()).subtract(usedVariables.getLifelineStartY()));
 
-        ConfStyleInfo confStyleInfo = ConfStyleInfo.getInstance();
         if (confStyleInfo.isMessageAutoSeq()) {
             // 自动为消息添加序号
             addSeq4Message();

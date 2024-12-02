@@ -1,11 +1,16 @@
 package com.adrninistrator.usddi.handler.base;
 
+import com.adrninistrator.usddi.conf.ConfPositionInfo;
+import com.adrninistrator.usddi.conf.ConfStyleInfo;
 import com.adrninistrator.usddi.dto.activation.ActivationInfo;
 import com.adrninistrator.usddi.dto.lifeline.LifelineInfo;
 import com.adrninistrator.usddi.dto.message.MessageInStack;
 import com.adrninistrator.usddi.dto.message.MessageInText;
 import com.adrninistrator.usddi.dto.message.MessageInfo;
+import com.adrninistrator.usddi.dto.variables.UsedVariables;
 import com.adrninistrator.usddi.enums.MessageTypeEnum;
+import com.adrninistrator.usddi.exceptions.HtmlFormatException;
+import com.adrninistrator.usddi.html.HtmlHandler;
 import com.adrninistrator.usddi.logger.DebugLogger;
 import com.adrninistrator.usddi.util.USDDIUtil;
 
@@ -21,8 +26,12 @@ import java.util.Map;
  */
 public abstract class BaseMessageHandler extends BaseHandler {
 
+    protected BaseMessageHandler(UsedVariables usedVariables, ConfPositionInfo confPositionInfo, ConfStyleInfo confStyleInfo, HtmlHandler htmlHandler) {
+        super(usedVariables, confPositionInfo, confStyleInfo, htmlHandler);
+    }
+
     // 对Message进行处理
-    public abstract boolean handleMessage(MessageInText messageInText);
+    public abstract boolean handleMessage(MessageInText messageInText) throws HtmlFormatException;
 
     /**
      * 检查栈顶元素

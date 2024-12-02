@@ -1,13 +1,15 @@
 apply plugin: 'eclipse'
 apply plugin: 'java'
+apply plugin: 'java-library'
 
 group 'com.github.adrninistrator'
-version = "0.1.2"
+version = "1.0.2"
 def projectName = "uml-sequence-diagram-drawio"
 description = "${projectName}"
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+def output_dir = "output_dir"
 def defaultEncoding = 'UTF-8'
 
 [compileJava, compileTestJava]*.options*.encoding = defaultEncoding
@@ -40,12 +42,26 @@ sourceSets {
     }
 }
 
-dependencies {
-}
-
 compileJava.options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
 
+List apache_common = [
+        'org.apache.commons:commons-lang3:3.17.0'
+]
+
+List jsoup = ['org.jsoup:jsoup:1.18.1']
+
+List junit = ['junit:junit:4.13.2']
+
+dependencies {
+    api apache_common, jsoup
+    testImplementation junit
+}
+
 processResources {
+    setDuplicatesStrategy(DuplicatesStrategy.INCLUDE)
+}
+
+processTestResources {
     setDuplicatesStrategy(DuplicatesStrategy.INCLUDE)
 }
 
@@ -62,23 +78,27 @@ task gen_run_jar(type: Jar) {
     from(sourceSets.main.output) {
         into '/'
     }
-	
-    doLast{
+
+    doLast {
         copy {
             from 'build/libs/run_usddi.jar'
-            into 'output_dir/jar/'
+            into "${output_dir}/jar/"
         }
         copy {
             from 'src/main/resources/~usddi_conf/'
-            into 'output_dir/~usddi_conf/'
+            into "${output_dir}/~usddi_conf/"
         }
         copy {
             from 'run.bat'
-            into 'output_dir/'
+            into "${output_dir}/"
         }
         copy {
             from 'run.sh'
-            into 'output_dir/'
+            into "${output_dir}/"
+        }
+        copy {
+            from configurations.runtimeClasspath.getFiles()
+            into "${output_dir}/lib"
         }
     }
 }

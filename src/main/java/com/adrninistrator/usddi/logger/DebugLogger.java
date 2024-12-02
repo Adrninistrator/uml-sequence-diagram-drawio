@@ -6,6 +6,7 @@ import com.adrninistrator.usddi.dto.message.MessageInfo;
 import com.adrninistrator.usddi.util.USDDIUtil;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -17,26 +18,36 @@ import java.io.Writer;
  */
 public class DebugLogger {
 
-    private static boolean debug = System.getProperty("debug.log") != null;
+    public static final String LOG_DIR = "log";
+
+    public static final String DEBUG_FLAG = "debug.log";
+
+    private static final boolean DEBUG = System.getProperty(DEBUG_FLAG) != null;
 
     private static Writer loggerWriter;
 
-    public static void init() {
-        if (!debug) {
-            return;
-        }
+    private static boolean exited = false;
 
-        try {
-            loggerWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("USDDI-" + USDDIUtil.currentTime() + ".log")));
-        } catch (Exception e) {
-            e.printStackTrace();
+    private static int logTimes = 0;
+
+    static {
+        if (DEBUG) {
+            try {
+                new File(LOG_DIR).mkdirs();
+                loggerWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(LOG_DIR + "/USDDI-" + USDDIUtil.currentTime() + ".log")));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            Runtime.getRuntime().addShutdownHook(new Thread(DebugLogger::beforeExit));
         }
     }
 
     public static void beforeExit() {
-        if (!debug || loggerWriter == null) {
+        if (!DEBUG || loggerWriter == null || exited) {
             return;
         }
+
+        exited = true;
 
         try {
             loggerWriter.flush();
@@ -45,15 +56,27 @@ public class DebugLogger {
         }
     }
 
-    public static void log(Class clazz, String... data) {
-        if (!debug || loggerWriter == null) {
+    public static void emptyLine() {
+        if (logTimes == 0) {
+            return;
+        }
+        log(null);
+    }
+
+    public static void log(Class<?> clazz, Object... data) {
+        if (!DEBUG || loggerWriter == null) {
             return;
         }
 
+        logTimes++;
         StringBuilder logData = new StringBuilder();
-        logData.append(clazz.getSimpleName());
-        for (String str : data) {
-            logData.append("\t").append(str);
+        if (clazz != null) {
+            logData.append(clazz.getSimpleName());
+        }
+        if (data != null) {
+            for (Object obj : data) {
+                logData.append(" ").append(obj);
+            }
         }
         logData.append("\n");
 
@@ -64,19 +87,19 @@ public class DebugLogger {
         }
     }
 
-    public static void logMessageInText(Class clazz, String operate, MessageInText messageInText) {
+    public static void logMessageInText(Class<?> clazz, String operate, MessageInText messageInText) {
         log(clazz, operate, getLifelineSeq(messageInText.getStartLifelineSeq()) + "->" +
                 getLifelineSeq(messageInText.getEndLifelineSeq()) + ":"
                 + messageInText.getMessageText());
     }
 
-    public static void logMessageInfo(Class clazz, String operate, MessageInfo messageInfo) {
+    public static void logMessageInfo(Class<?> clazz, String operate, MessageInfo messageInfo) {
         log(clazz, operate, getLifelineSeq(messageInfo.getStartLifelineSeq()) + "->" +
                 getLifelineSeq(messageInfo.getEndLifelineSeq()) + ":"
                 + messageInfo.getMessageText());
     }
 
-    public static void logActivation(Class clazz, String type, int lifelineSeq, ActivationInfo activationInfo) {
+    public static void logActivation(Class<?> clazz, String type, int lifelineSeq, ActivationInfo activationInfo) {
         String topY = activationInfo.getTopY() != null ? activationInfo.getTopY().toPlainString() : "null";
         String bottomY = activationInfo.getBottomY() != null ? activationInfo.getBottomY().toPlainString() : "null";
 
@@ -85,5 +108,9 @@ public class DebugLogger {
 
     public static String getLifelineSeq(int lifelineSeq) {
         return "[" + (lifelineSeq + 1) + "]";
+    }
+
+    private DebugLogger() {
+        throw new IllegalStateException("illegal");
     }
 }

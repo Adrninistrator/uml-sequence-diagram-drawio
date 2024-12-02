@@ -8,12 +8,17 @@ import com.adrninistrator.usddi.dto.message.MessageInfo;
 import com.adrninistrator.usddi.logger.DebugLogger;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author adrninistrator
  * @date 2021/9/16
- * @description:
+ * @description: 使用的变量
  */
 public class UsedVariables {
 
@@ -45,7 +50,7 @@ public class UsedVariables {
     private BigDecimal totalWidth;
 
     // 整个Lifeline的高度
-    private BigDecimal lifelineHeight;
+    private BigDecimal lifelineTotalHeight;
 
     // Lifeline的起始y坐标
     private BigDecimal lifelineStartY = BigDecimal.ZERO;
@@ -56,17 +61,16 @@ public class UsedVariables {
     // 当前部分的序号，从0开始
     private int currentPartSeq = 0;
 
-    private static UsedVariables instance;
+    // 生命线的方框实际宽度
+    private BigDecimal lifelineBoxActualWidth;
 
-    public static void reset() {
-        instance = new UsedVariables();
-    }
+    // 生命线的方框实际宽度的一半
+    private BigDecimal lifelineBoxActualWidthHalf;
 
-    public static UsedVariables getInstance() {
-        return instance;
-    }
+    // 生命线的方框实际高度
+    private BigDecimal lifelineBoxActualHeight;
 
-    public void addCurrentY(Class clazz, String operate, BigDecimal addValue) {
+    public void addCurrentY(Class<?> clazz, String operate, BigDecimal addValue) {
         DebugLogger.log(clazz, "addCurrentY", operate, addValue.toPlainString());
         this.currentY = currentY.add(addValue);
     }
@@ -74,8 +78,8 @@ public class UsedVariables {
     public void addCurrentPartSeq() {
         this.currentPartSeq++;
     }
-    //
 
+    //
     public DescriptionInfo getDescriptionInfo() {
         return descriptionInfo;
     }
@@ -148,12 +152,12 @@ public class UsedVariables {
         this.totalWidth = totalWidth;
     }
 
-    public BigDecimal getLifelineHeight() {
-        return lifelineHeight;
+    public BigDecimal getLifelineTotalHeight() {
+        return lifelineTotalHeight;
     }
 
-    public void setLifelineHeight(BigDecimal lifelineHeight) {
-        this.lifelineHeight = lifelineHeight;
+    public void setLifelineTotalHeight(BigDecimal lifelineTotalHeight) {
+        this.lifelineTotalHeight = lifelineTotalHeight;
     }
 
     public BigDecimal getLifelineStartY() {
@@ -172,15 +176,35 @@ public class UsedVariables {
         this.firstStartLifelineSeq = firstStartLifelineSeq;
     }
 
-    public static void setInstance(UsedVariables instance) {
-        UsedVariables.instance = instance;
-    }
-
     public int getCurrentPartSeq() {
         return currentPartSeq;
     }
 
     public void setCurrentPartSeq(int currentPartSeq) {
         this.currentPartSeq = currentPartSeq;
+    }
+
+    public BigDecimal getLifelineBoxActualWidth() {
+        return lifelineBoxActualWidth;
+    }
+
+    public void setLifelineBoxActualWidth(BigDecimal lifelineBoxActualWidth) {
+        this.lifelineBoxActualWidth = lifelineBoxActualWidth;
+    }
+
+    public BigDecimal getLifelineBoxActualWidthHalf() {
+        return lifelineBoxActualWidthHalf;
+    }
+
+    public void setLifelineBoxActualWidthHalf(BigDecimal lifelineBoxActualWidthHalf) {
+        this.lifelineBoxActualWidthHalf = lifelineBoxActualWidthHalf;
+    }
+
+    public BigDecimal getLifelineBoxActualHeight() {
+        return lifelineBoxActualHeight;
+    }
+
+    public void setLifelineBoxActualHeight(BigDecimal lifelineBoxActualHeight) {
+        this.lifelineBoxActualHeight = lifelineBoxActualHeight;
     }
 }

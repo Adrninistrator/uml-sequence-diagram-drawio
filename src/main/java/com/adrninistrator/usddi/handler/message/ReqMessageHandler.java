@@ -1,13 +1,17 @@
 package com.adrninistrator.usddi.handler.message;
 
+import com.adrninistrator.usddi.conf.ConfPositionInfo;
+import com.adrninistrator.usddi.conf.ConfStyleInfo;
 import com.adrninistrator.usddi.dto.activation.ActivationInfo;
 import com.adrninistrator.usddi.dto.message.MessageInStack;
 import com.adrninistrator.usddi.dto.message.MessageInText;
 import com.adrninistrator.usddi.dto.message.MessageInfo;
+import com.adrninistrator.usddi.dto.variables.UsedVariables;
 import com.adrninistrator.usddi.enums.MessageTypeEnum;
+import com.adrninistrator.usddi.exceptions.HtmlFormatException;
 import com.adrninistrator.usddi.handler.base.BaseMessageHandler;
+import com.adrninistrator.usddi.html.HtmlHandler;
 import com.adrninistrator.usddi.logger.DebugLogger;
-import com.adrninistrator.usddi.util.USDDIUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +24,12 @@ import java.util.Map;
  */
 public class ReqMessageHandler extends BaseMessageHandler {
 
+    public ReqMessageHandler(UsedVariables usedVariables, ConfPositionInfo confPositionInfo, ConfStyleInfo confStyleInfo, HtmlHandler htmlHandler) {
+        super(usedVariables, confPositionInfo, confStyleInfo, htmlHandler);
+    }
+
     @Override
-    public boolean handleMessage(MessageInText messageInText) {
+    public boolean handleMessage(MessageInText messageInText) throws HtmlFormatException {
         DebugLogger.logMessageInText(this.getClass(), "handleMessage", messageInText);
 
         // 检查栈顶元素
@@ -49,7 +57,7 @@ public class ReqMessageHandler extends BaseMessageHandler {
         messageStack.push(currentMessage);
 
         // 记录Message的坐标
-        MessageInfo messageInfo = USDDIUtil.getMessageInfo(messageInText, usedVariables.getCurrentPartSeq());
+        MessageInfo messageInfo = genMessageInfo(messageInText, usedVariables.getCurrentPartSeq());
         messageInfo.setMessageType(MessageTypeEnum.MTE_REQ);
 
         // 处理Message位置

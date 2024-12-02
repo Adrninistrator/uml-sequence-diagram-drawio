@@ -53,13 +53,6 @@ public class ConfStyleInfo {
     // 文字颜色-Message
     private String textColorOfMessage;
 
-    private static ConfStyleInfo instance = new ConfStyleInfo();
-
-    public static ConfStyleInfo getInstance() {
-        return instance;
-    }
-
-    //
     public boolean isMessageAutoSeq() {
         return messageAutoSeq;
     }

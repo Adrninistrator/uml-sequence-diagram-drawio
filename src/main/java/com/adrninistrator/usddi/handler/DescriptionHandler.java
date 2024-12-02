@@ -1,8 +1,12 @@
 package com.adrninistrator.usddi.handler;
 
 import com.adrninistrator.usddi.common.USDDIConstants;
+import com.adrninistrator.usddi.conf.ConfPositionInfo;
+import com.adrninistrator.usddi.conf.ConfStyleInfo;
 import com.adrninistrator.usddi.dto.description.DescriptionInfo;
+import com.adrninistrator.usddi.dto.variables.UsedVariables;
 import com.adrninistrator.usddi.handler.base.BaseHandler;
+import com.adrninistrator.usddi.html.HtmlHandler;
 import com.adrninistrator.usddi.logger.DebugLogger;
 import com.adrninistrator.usddi.util.USDDIUtil;
 
@@ -12,6 +16,10 @@ import com.adrninistrator.usddi.util.USDDIUtil;
  * @description:
  */
 public class DescriptionHandler extends BaseHandler {
+
+    public DescriptionHandler(UsedVariables usedVariables, ConfPositionInfo confPositionInfo, ConfStyleInfo confStyleInfo, HtmlHandler htmlHandler) {
+        super(usedVariables, confPositionInfo, confStyleInfo, htmlHandler);
+    }
 
     public boolean handleDescription(String text) {
         DebugLogger.log(this.getClass(), "handleDescription", text);

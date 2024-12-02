@@ -8,7 +8,13 @@ import com.adrninistrator.usddi.dto.description.DescriptionInfo;
 import com.adrninistrator.usddi.dto.lifeline.LifelineInfo;
 import com.adrninistrator.usddi.dto.message.MessageInfo;
 import com.adrninistrator.usddi.dto.variables.UsedVariables;
-import com.adrninistrator.usddi.jaxb.dto.*;
+import com.adrninistrator.usddi.jaxb.dto.MxArray;
+import com.adrninistrator.usddi.jaxb.dto.MxCell;
+import com.adrninistrator.usddi.jaxb.dto.MxGeometry;
+import com.adrninistrator.usddi.jaxb.dto.MxGraphModel;
+import com.adrninistrator.usddi.jaxb.dto.MxPoint;
+import com.adrninistrator.usddi.jaxb.dto.MxRoot;
+import com.adrninistrator.usddi.jaxb.dto.UserObject;
 import com.adrninistrator.usddi.jaxb.util.JAXBUtil;
 import com.adrninistrator.usddi.util.USDDIUtil;
 
@@ -16,12 +22,16 @@ import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author adrninistrator
  * @date 2021/9/21
- * @description:
+ * @description: 生成draw.io格式的UML时序图类
  */
 public class DrawIoUSDXmlGen {
 
@@ -35,18 +45,30 @@ public class DrawIoUSDXmlGen {
     private static final String ID_ACTIVATION = "activation-";
     private static final String ID_MESSAGE = "message-";
 
-    final private UsedVariables usedVariables = UsedVariables.getInstance();
-    final private ConfPositionInfo confPositionInfo = ConfPositionInfo.getInstance();
-    final private ConfStyleInfo confStyleInfo = ConfStyleInfo.getInstance();
+    private final UsedVariables usedVariables;
 
-    final private DescriptionInfo descriptionInfo = usedVariables.getDescriptionInfo();
-    final private List<LifelineInfo> lifelineInfoList = usedVariables.getLifelineInfoList();
-    final private Map<Integer, List<ActivationInfo>> activationMap = usedVariables.getActivationMap();
-    final private List<MessageInfo> messageInfoList = usedVariables.getMessageInfoList();
+    private final ConfPositionInfo confPositionInfo;
+    private final ConfStyleInfo confStyleInfo;
+
+    private final DescriptionInfo descriptionInfo;
+    private final List<LifelineInfo> lifelineInfoList;
+    private final Map<Integer, List<ActivationInfo>> activationMap;
+    private final List<MessageInfo> messageInfoList;
 
     private String timestamp;
 
     private int elementId = 0;
+
+    public DrawIoUSDXmlGen(UsedVariables usedVariables, ConfPositionInfo confPositionInfo, ConfStyleInfo confStyleInfo) {
+        this.usedVariables = usedVariables;
+        this.confPositionInfo = confPositionInfo;
+        this.confStyleInfo = confStyleInfo;
+
+        descriptionInfo = usedVariables.getDescriptionInfo();
+        lifelineInfoList = usedVariables.getLifelineInfoList();
+        activationMap = usedVariables.getActivationMap();
+        messageInfoList = usedVariables.getMessageInfoList();
+    }
 
     /**
      * 生成drawio的UML时序图XML文件
@@ -202,10 +224,10 @@ public class DrawIoUSDXmlGen {
 
             MxGeometry lifelineMxGeometry = new MxGeometry();
             lifelineMxCell.setMxGeometry(lifelineMxGeometry);
-            lifelineMxGeometry.setX(lifelineInfo.getCenterX().subtract(confPositionInfo.getLifelineBoxWidthHalf()).toPlainString());
+            lifelineMxGeometry.setX(lifelineInfo.getCenterX().subtract(usedVariables.getLifelineBoxActualWidthHalf()).toPlainString());
             lifelineMxGeometry.setY(lifelineInfo.getStartY().toPlainString());
-            lifelineMxGeometry.setWidth(confPositionInfo.getLifelineBoxWidth().toPlainString());
-            lifelineMxGeometry.setHeight(usedVariables.getLifelineHeight().toPlainString());
+            lifelineMxGeometry.setWidth(usedVariables.getLifelineBoxActualWidth().toPlainString());
+            lifelineMxGeometry.setHeight(usedVariables.getLifelineTotalHeight().toPlainString());
             lifelineMxGeometry.setAs(MX_AS_GEOMETRY);
 
             userObjectList.add(userObject);
@@ -369,7 +391,7 @@ public class DrawIoUSDXmlGen {
         map.put("collapsible", "0");
         map.put("recursiveResize", "0");
         map.put("outlineConnect", "0");
-        map.put("size", confPositionInfo.getLifelineBoxHeight().toPlainString());
+        map.put("size", usedVariables.getLifelineBoxActualHeight().toPlainString());
         if (confStyleInfo.getLineWidthOfLifeline() != null) {
             map.put("strokeWidth", confStyleInfo.getLineWidthOfLifeline().toPlainString());
         }
@@ -471,11 +493,6 @@ public class DrawIoUSDXmlGen {
 
     // 处理文字及字体
     private String handleTextWithFont(String text, String textFont, Integer textSize, String textColor) {
-        if (text.contains("<font") && text.contains("</font>")) {
-            // 若当前文本中有指定字体，则不使用统一配置的字体
-            return text;
-        }
-
         StringBuilder textStyle = new StringBuilder();
         if (!USDDIUtil.isStrEmpty(textFont)) {
             textStyle.append(" ").append("face=\"").append(textFont).append("\"");
