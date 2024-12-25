@@ -39,6 +39,10 @@ lifeline.box.width
 lifeline.box.height
 ```
 
+- 1.0.3
+
+返回消息支持为空
+
 # 3. 示例
 
 ## 3.1. 示例 - 基本
@@ -129,7 +133,7 @@ sh run.sh [文本文件路径]
 - Gradle
 
 ```
-testImplementation 'com.github.adrninistrator:uml-sequence-diagram-drawio:1.0.2'
+testImplementation 'com.github.adrninistrator:uml-sequence-diagram-drawio:1.0.3'
 ```
 
 - Maven
@@ -138,7 +142,7 @@ testImplementation 'com.github.adrninistrator:uml-sequence-diagram-drawio:1.0.2'
 <dependency>
   <groupId>com.github.adrninistrator</groupId>
   <artifactId>uml-sequence-diagram-drawio</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
   <type>provided</type>
 </dependency>
 ```

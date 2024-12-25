@@ -3,7 +3,7 @@ package com.adrninistrator.usddi.runner;
 import com.adrninistrator.usddi.common.USDDIConstants;
 import com.adrninistrator.usddi.dto.lifeline.LifelineName;
 import com.adrninistrator.usddi.enums.MessageTypeEnum;
-import com.adrninistrator.usddi.util.USDDIUtil;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -77,13 +77,13 @@ public class RunnerGenTextFile4USD {
         }
         writeDescriptionDone = true;
 
-        if (USDDIUtil.isStrEmpty(description)) {
+        if (StringUtils.isBlank(description)) {
             throw new RuntimeException("描述为空");
         }
 
         writer.write(USDDIConstants.DESCRIPTION_FLAG);
         writer.write(description);
-        if (!USDDIUtil.isStrEmpty(link)) {
+        if (StringUtils.isNotBlank(link)) {
             writer.write(USDDIConstants.LINK_FLAG);
             writer.write(link);
         }
@@ -215,13 +215,13 @@ public class RunnerGenTextFile4USD {
     private void addMessage(MessageTypeEnum messageTypeEnum, String startLifeline, String endLifeline, String message, String link) {
         checkStage();
 
-        if (USDDIUtil.isStrEmpty(startLifeline)) {
+        if (StringUtils.isBlank(startLifeline)) {
             throw new RuntimeException("起点生命线为空");
         }
-        if (USDDIUtil.isStrEmpty(endLifeline)) {
+        if (StringUtils.isBlank(endLifeline)) {
             throw new RuntimeException("终点生命线为空");
         }
-        if (USDDIUtil.isStrEmpty(message)) {
+        if (StringUtils.isBlank(message)) {
             throw new RuntimeException("消息内容为空");
         }
 

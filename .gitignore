@@ -13,6 +13,7 @@
 *.txt
 src/test/resources/formatted_html
 src/test/resources/error_html
+src/test/resources/error_text_file
 src/test/resources/raw_html
 src/test/resources/text_file
 src/test/java/test/usddi/local

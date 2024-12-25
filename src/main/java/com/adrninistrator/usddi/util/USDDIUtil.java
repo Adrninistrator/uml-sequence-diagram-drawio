@@ -8,6 +8,7 @@ import com.adrninistrator.usddi.dto.variables.UsedVariables;
 import com.adrninistrator.usddi.enums.MessageTypeEnum;
 import com.adrninistrator.usddi.handler.base.BaseMessageHandler;
 import com.adrninistrator.usddi.logger.DebugLogger;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -32,10 +33,6 @@ public class USDDIUtil {
     private static final ClassLoader CLASS_LOADER = USDDIUtil.class.getClassLoader();
 
     private static final String CLASS_PATH = USDDIUtil.class.getResource("/").getPath();
-
-    public static boolean isStrEmpty(String str) {
-        return str == null || str.trim().isEmpty();
-    }
 
     public static File findFile(String filePath) throws URISyntaxException {
         File file = new File(filePath);
@@ -165,10 +162,6 @@ public class USDDIUtil {
             // 未指定链接
             messageText = text.substring(messageTextIndex + USDDIConstants.MESSAGE_TEXT_FLAG.length()).trim();
         }
-        if (messageText.isEmpty()) {
-            System.err.println("当前消息文字为空: " + text);
-            return null;
-        }
 
         String endLifelineName = text.substring(messageFlagIndex.getIndex() + messageFlagIndex.getFlag().length(), messageTextIndex).trim();
         if (endLifelineName.isEmpty()) {
@@ -194,15 +187,24 @@ public class USDDIUtil {
             messageInText.setEndLifelineSeq(endLifelineSeq);
         }
         messageInText.setMessageText(messageText);
+
+        boolean rspMessage = false;
         if (USDDIConstants.MESSAGE_REQ_FLAG.equals(messageFlagIndex.getFlag())) {
             messageInText.setMessageType(startLifelineSeq.equals(endLifelineSeq) ? MessageTypeEnum.MTE_SELF : MessageTypeEnum.MTE_REQ);
         } else if (USDDIConstants.MESSAGE_RSP_FLAG.equals(messageFlagIndex.getFlag())) {
             messageInText.setMessageType(MessageTypeEnum.MTE_RSP);
+            rspMessage = true;
         } else if (USDDIConstants.MESSAGE_ASYNC_FLAG.equals(messageFlagIndex.getFlag())) {
             messageInText.setMessageType(MessageTypeEnum.MTE_ASYNC);
         }
 
-        if (!isStrEmpty(link)) {
+        if (messageText.isEmpty() && !rspMessage) {
+            // 只有返回消息允许为空
+            System.err.println("当前消息文字为空: " + text);
+            return null;
+        }
+
+        if (StringUtils.isNotBlank(link)) {
             messageInText.setLink(link);
         }
 

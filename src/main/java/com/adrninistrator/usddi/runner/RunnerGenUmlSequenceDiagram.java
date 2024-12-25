@@ -310,7 +310,7 @@ public class RunnerGenUmlSequenceDiagram {
             lifelineBoxWidth = USDDIUtil.minBigDecimal(lifelineBoxHeightMultiple, lifelineBoxMaxAllowedWidth);
         }
 
-        // Lifeline方框使用的宽度需要再加2
+        // Lifeline方框使用的宽度需要再加一些，加2可能不够，使用加4
         usedVariables.setLifelineBoxActualWidth(lifelineBoxWidth.add(USDDIConstants.LIFELINE_BOX_BORDER_TEXT_SPACE_HORIZONTAL));
         usedVariables.setLifelineBoxActualWidthHalf(USDDIUtil.getHalfBigDecimal(usedVariables.getLifelineBoxActualWidth()));
 

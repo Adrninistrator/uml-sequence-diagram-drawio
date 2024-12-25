@@ -107,7 +107,7 @@ public class USDDIConstants {
     public static final BigDecimal LIFELINE_BOX_WIDTH_HEIGHT_MULTIPLE = BigDecimal.valueOf(2);
 
     // Lifeline方框与文字的间距，横向
-    public static final BigDecimal LIFELINE_BOX_BORDER_TEXT_SPACE_HORIZONTAL = BigDecimal.valueOf(2);
+    public static final BigDecimal LIFELINE_BOX_BORDER_TEXT_SPACE_HORIZONTAL = BigDecimal.valueOf(4);
 
     // 消息宽度最大允许占用开始与结束的生命线之间水平间距的比例
     public static final BigDecimal MESSAGE_MAX_WIDTH_PERCENTAGE_LIFELINE = BigDecimal.valueOf(0.7D);

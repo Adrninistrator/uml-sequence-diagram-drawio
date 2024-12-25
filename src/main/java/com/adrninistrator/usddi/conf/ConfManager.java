@@ -3,6 +3,7 @@ package com.adrninistrator.usddi.conf;
 import com.adrninistrator.usddi.common.USDDIConstants;
 import com.adrninistrator.usddi.exceptions.ConfException;
 import com.adrninistrator.usddi.util.USDDIUtil;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -114,7 +115,7 @@ public class ConfManager {
      * @throws ConfException
      */
     private boolean checkBlank(String value, String key, String configFilePath, boolean allowEmpty) throws ConfException {
-        if (USDDIUtil.isStrEmpty(value)) {
+        if (StringUtils.isBlank(value)) {
             if (!allowEmpty) {
                 throw new ConfException("配置文件中未指定参数: " + configFilePath + " " + key);
             }

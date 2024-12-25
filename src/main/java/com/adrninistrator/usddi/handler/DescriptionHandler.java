@@ -8,7 +8,7 @@ import com.adrninistrator.usddi.dto.variables.UsedVariables;
 import com.adrninistrator.usddi.handler.base.BaseHandler;
 import com.adrninistrator.usddi.html.HtmlHandler;
 import com.adrninistrator.usddi.logger.DebugLogger;
-import com.adrninistrator.usddi.util.USDDIUtil;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author adrninistrator
@@ -52,7 +52,7 @@ public class DescriptionHandler extends BaseHandler {
         // 处理当前处理到的y坐标，加上描述的高度
         usedVariables.addCurrentY(this.getClass(), "加上描述的高度", USDDIConstants.DESCRIPTION_HEIGHT);
 
-        if (!USDDIUtil.isStrEmpty(link)) {
+        if (StringUtils.isNotBlank(link)) {
             // 未指定链接
             descriptionInfo.setLink(link);
             // 处理当前处理到的y坐标，加上描述与生命线的间距

@@ -16,7 +16,7 @@ import com.adrninistrator.usddi.jaxb.dto.MxPoint;
 import com.adrninistrator.usddi.jaxb.dto.MxRoot;
 import com.adrninistrator.usddi.jaxb.dto.UserObject;
 import com.adrninistrator.usddi.jaxb.util.JAXBUtil;
-import com.adrninistrator.usddi.util.USDDIUtil;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
@@ -395,10 +395,10 @@ public class DrawIoUSDXmlGen {
         if (confStyleInfo.getLineWidthOfLifeline() != null) {
             map.put("strokeWidth", confStyleInfo.getLineWidthOfLifeline().toPlainString());
         }
-        if (!USDDIUtil.isStrEmpty(confStyleInfo.getLineColorOfLifeline())) {
+        if (StringUtils.isNotBlank(confStyleInfo.getLineColorOfLifeline())) {
             map.put("strokeColor", confStyleInfo.getLineColorOfLifeline());
         }
-        if (!USDDIUtil.isStrEmpty(confStyleInfo.getBoxColorOfLifeline())) {
+        if (StringUtils.isNotBlank(confStyleInfo.getBoxColorOfLifeline())) {
             map.put("fillColor", confStyleInfo.getBoxColorOfLifeline());
         }
 
@@ -414,10 +414,10 @@ public class DrawIoUSDXmlGen {
         if (confStyleInfo.getLineWidthOfActivation() != null) {
             map.put("strokeWidth", confStyleInfo.getLineWidthOfActivation().toPlainString());
         }
-        if (!USDDIUtil.isStrEmpty(confStyleInfo.getLineColorOfActivation())) {
+        if (StringUtils.isNotBlank(confStyleInfo.getLineColorOfActivation())) {
             map.put("strokeColor", confStyleInfo.getLineColorOfActivation());
         }
-        if (!USDDIUtil.isStrEmpty(confStyleInfo.getBoxColorOfActivation())) {
+        if (StringUtils.isNotBlank(confStyleInfo.getBoxColorOfActivation())) {
             map.put("fillColor", confStyleInfo.getBoxColorOfActivation());
         }
 
@@ -430,7 +430,7 @@ public class DrawIoUSDXmlGen {
         if (confStyleInfo.getLineWidthOfMessage() != null) {
             map.put("strokeWidth", confStyleInfo.getLineWidthOfMessage().toPlainString());
         }
-        if (!USDDIUtil.isStrEmpty(confStyleInfo.getLineColorOfMessage())) {
+        if (StringUtils.isNotBlank(confStyleInfo.getLineColorOfMessage())) {
             map.put("strokeColor", confStyleInfo.getLineColorOfMessage());
         }
         return map;
@@ -494,13 +494,13 @@ public class DrawIoUSDXmlGen {
     // 处理文字及字体
     private String handleTextWithFont(String text, String textFont, Integer textSize, String textColor) {
         StringBuilder textStyle = new StringBuilder();
-        if (!USDDIUtil.isStrEmpty(textFont)) {
+        if (StringUtils.isNotBlank(textFont)) {
             textStyle.append(" ").append("face=\"").append(textFont).append("\"");
         }
         if (textSize != null) {
             textStyle.append(" ").append("style=\"font-size: ").append(textSize).append("px\"");
         }
-        if (!USDDIUtil.isStrEmpty(textColor)) {
+        if (StringUtils.isNotBlank(textColor)) {
             textStyle.append(" ").append("color=\"").append(textColor).append("\"");
         }
         if (textStyle.length() == 0) {
