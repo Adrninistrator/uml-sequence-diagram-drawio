@@ -228,6 +228,7 @@ public class RunnerGenUmlSequenceDiagram {
             // 循环结束
             // 若上一行为非空行，执行部分结束的操作
             if (!lastLineIsEmpty && !endPartHandler.handle()) {
+                System.err.println("开始处理新的部分，第" + lineNum + "行处理失败2: " + line);
                 return false;
             }
 

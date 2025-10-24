@@ -1,9 +1,10 @@
 apply plugin: 'eclipse'
 apply plugin: 'java'
 apply plugin: 'java-library'
+apply plugin: 'idea'
 
 group 'com.github.adrninistrator'
-version = "1.0.3"
+version = "1.0.4"
 def projectName = "uml-sequence-diagram-drawio"
 description = "${projectName}"
 sourceCompatibility = 1.8
@@ -100,5 +101,16 @@ task gen_run_jar(type: Jar) {
             from configurations.runtimeClasspath.getFiles()
             into "${output_dir}/lib"
         }
+    }
+}
+
+idea {
+    module {
+        // and some extra dirs that should be excluded by IDEA
+        excludeDirs += file('.idea')
+        excludeDirs += file('gradle')
+        excludeDirs += file("${output_dir}")
+        excludeDirs += file('log')
+        excludeDirs += file('src/test/resources')
     }
 }
